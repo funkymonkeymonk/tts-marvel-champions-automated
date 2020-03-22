@@ -11,6 +11,14 @@ _By that I mean not all of the features are fully baked. Not everything will wor
 * Quick setup of encounters and heros
 * More as I get more time and gumption to add them
 
+## How To Use
+At the top of the table, click the small red box to open the menu. All setup is driven from that menu.
+You can also use the following scripting keys
+* Scripting key 3 - Main mod Menu
+* Scripting key 1 - Hero Builder
+* Scripting key 2 - Encounter Builder
+* Scripting key 4 - Players Panel 
+
 ## Acknowledgements
 We all stand on the shoulders of giants. Thanks to everyone who helped make this mod happen. Listed in alphabetical order:
 * [Anesthesia](https://steamcommunity.com/id/anesthesiacat) for [Marvel Champions The Big Box](https://steamcommunity.com/sharedfiles/filedetails/?id=1823311473) which is where I get my card scans.
@@ -21,9 +29,11 @@ We all stand on the shoulders of giants. Thanks to everyone who helped make this
 * If your name should be here file a bug report [here](https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues) and I'll fix that.
 
 ## Bugs
-Should you find any bugs please search for them [here](https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues) to make sure it hasn't already been reported. If it's not something that's been reported before 
+Should you find any bugs please search for them [here](https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues) to make sure it hasn't already been reported. If it's not something that's been reported before please post a bug report there.
 
 ## Contributors
 * FunkyMonkeyMonk
 * _Your name here_
+
+
 Want to contribute? You don't need to be a developer to contribute. Many hands make light work after all and I would love to have you help. Reach out to me at funkymonkeymonk on Discord.
