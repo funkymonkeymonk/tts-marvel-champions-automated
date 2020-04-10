@@ -1,0 +1,32 @@
+{
+  "name": "tts-marvel-champions-automated",
+  "scripts": {
+    "embed": "npx ts-node script/index.ts embed mod/src mod/MarvelChampionsAutomated.json",
+    "extract": "npx ts-node script/index.ts extract mod/MarvelChampionsAutomated.json mod/src"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues"
+  },
+  "homepage": "https://github.com/funkymonkeymonk/tts-marvel-champions-automated",
+  "devDependencies": {
+    "@types/clear": "^0.1.0",
+    "@types/figlet": "^1.2.0",
+    "@types/fs-extra": "^8.0.0",
+    "@types/mkdirp": "^0.5.2",
+    "@types/node": "^12.7.8",
+    "@types/sanitize-filename": "^1.6.3",
+    "chalk": "^2.4.2",
+    "clear": "^0.1.0",
+    "commander": "^3.0.2",
+    "detect-newline": "^3.0.0",
+    "figlet": "^1.2.4",
+    "fs-extra": "^8.1.0",
+    "mkdirp": "^0.5.1",
+    "nodemon": "^1.19.2",
+    "path": "^0.12.7",
+    "sanitize-filename": "^1.6.3",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3"
+  }
+}

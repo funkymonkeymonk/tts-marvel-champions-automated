@@ -26,6 +26,7 @@ We all stand on the shoulders of giants. Thanks to everyone who helped make this
 * [Grabben](https://steamcommunity.com/profiles/76561197970906315) for creating the [ArkhamDB Deck Builder For Arkham Horror LCG](https://steamcommunity.com/sharedfiles/filedetails/?id=1319961555) which is where this mod all got started.
 * [McBober](https://steamcommunity.com/id/Mcbober) for [McBober's Marvel Champions Mods - Star Wars](https://steamcommunity.com/sharedfiles/filedetails/?id=1885973020) because the playmat is great.
 * [Mr Stump](https://steamcommunity.com/id/MrStump) for the [FlexTable](https://steamcommunity.com/sharedfiles/filedetails/?id=1169112551) which is what I use for the dynamic player space
+* [Table Top Simulator Mod for Star Wars: Legion](https://github.com/swlegion/tts) of which a lot of development practices were learned.
 * If your name should be here file a bug report [here](https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues) and I'll fix that.
 
 ## Bugs
