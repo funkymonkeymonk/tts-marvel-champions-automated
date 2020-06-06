@@ -30,7 +30,7 @@ We all stand on the shoulders of giants. Thanks to everyone who helped make this
 * If your name should be here file a bug report [here](https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues) and I'll fix that.
 
 ## Bugs
-Should you find any bugs please search for them [here](https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues) to make sure it hasn't already been reported. If it's not something that's been reported before please post a bug report there.
+Should you find any bugs please search for them [here](https://github.com/funkymonkeymonk/tts-marvel-champions-automated/issues) to make sure it hasn't already been reported. If it's not something that's been reported before please post a bug report there. You can also sometimes find me on the [Deckcelcior Discord](https://discord.gg/dXWBhSx). I tend to hang around in the #TTS channel.
 
 ## Contributors
 * FunkyMonkeyMonk
