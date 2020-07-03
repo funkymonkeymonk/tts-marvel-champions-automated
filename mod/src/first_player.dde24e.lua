@@ -14,5 +14,5 @@ end
 function onRandomize()
   local playerList = getSeatedPlayers()
   local firstPlayer = playerList[ math.random( #playerList ) ]
-  print("First player is "..Player[firstPlayer].steam_name)
+  broadcastToAll("First player is "..Player[firstPlayer].steam_name)
 end
