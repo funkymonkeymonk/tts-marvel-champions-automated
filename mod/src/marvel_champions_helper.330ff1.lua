@@ -74,13 +74,13 @@ function onLoad()
   modularEncounter = ""
   includeStandard = "True"
   includeExpert = "False"
-  playmat = ""
+  defaultPlaymatName = "Marvel Champions"
   playerCount = 1
   playerColors = {"Blue", "Red", "Yellow", "Green"}
 
   -- Create Interface
   uiBuilder.makeUI()
-  uiToggleButton()
+  uiBuilder.uiToggleButton()
   if flags.heroSpawnTesting then buildHeroDeckClicked(Player["Blue"]) end
   if flags.encounterSpawnTesting then buildEncounterDeckClicked(Player["Blue"]) end
 end
@@ -561,7 +561,7 @@ function buildHeroDeckClicked(player)
 
   local objs = {}
   -- Get Playspace Items
-  local playmat = getFromBagOld(playmat, playmatParams, playmatBagGUID)
+  local playmat = getFromBagOld(defaultPlaymatName, playmatParams, playmatBagGUID)
   table.insert(objs, playmat)
   table.insert(objs, getFromBagOld("Damage", tokenParams(0), tokenBagGUID))
   table.insert(objs, getFromBagOld("Generic", tokenParams(1), tokenBagGUID))
@@ -945,25 +945,22 @@ uiBuilder = {
     table.insert(sidebarLayout.children, closeButton)
 
     table.insert(marvelUI, sidebarLayout)
-    table.insert(marvelUI, makeHeroPanel())
-    table.insert(marvelUI, makeEncounterPanel())
-    table.insert(marvelUI, makePlayerPanel())
+    table.insert(marvelUI, heroPanel:make())
+    table.insert(marvelUI, encounterPanel:make())
+    table.insert(marvelUI, playerPanel:make())
     
-    -- Does this remove any other mods custom UI's?
-    -- The api docs aren't super clear and I don't see a way to get the current UI and append
-    -- It doesn't seem like it
     UI.setXmlTable(marvelUI)
+  end,
+
+  uiToggleButton = function()
+    tile = getObjectFromGUID(scriptContainerGUID)
+    self.createButton({
+      click_function="toggleUI", function_owner=self,
+      position={0,0,0}, rotation={0,0,0}, height=950, width=700,
+      tooltip="Click to show/hide Marvel UI"
+    })
   end
 }
-
-function uiToggleButton()
-  tile = getObjectFromGUID(scriptContainerGUID)
-  self.createButton({
-    click_function="toggleUI", function_owner=self,
-    position={0,0,0}, rotation={0,0,0}, height=950, width=700,
-    tooltip="Click to show/hide Marvel UI"
-  })
-end
 
 -- Player Panel Helper
 function setPlayerCount(player, option, id)
@@ -971,89 +968,91 @@ function setPlayerCount(player, option, id)
 end
 
 -- Player Panel Assets
-function playerHeaderRow()
-  local header = {
-    tag="Text",
-    value="Players",
-    attributes={
-      resizeTextForBestFit=true
-      , color="white"
+playerPanel = {
+  headerRow = function()
+    local header = {
+      tag="Text",
+      value="Players",
+      attributes={
+        resizeTextForBestFit=true
+        , color="white"
+      }
     }
-  }
-
-  return row({
-    cell(header,2)
-  })
-end
-
-function playerPanelCountRow()
-  local label = {
-    tag="Text",
-    value="Player Count",
-    attributes={
-      resizeTextForBestFit=true
-      , color="white"
-    }
-  }
-
-  local dropdown = {
-    tag="Dropdown"
-    , attributes={
-      onValueChanged=scriptContainerGUID .. "/setPlayerCount"
-    }
-    , children={option(1),option(2),option(3),option(4)}
-  }
-
-  return row({
-    cell(label)
-    , cell(dropdown)
-  })
-end
-
-function playerPanelButtonRow()
-  local button = {
-    tag="Button",
-    attributes={
-      onClick=scriptContainerGUID .. "/setPlayers",
-      fontSize=12,
-    },
-    value="Set Players",
-  }
-
-  return row({
-    cell(button, 2)
-  })
-end
-
-function makePlayerPanel()
-  log("Building Player Panel")
   
-  local panel = {
-    tag="Panel",
-    attributes={
-      id="playerPanel"
-      , width = "30%"
-      , height = "40%"
-      , active = flags.ui.player or false
-    },
-    children={}
-  }
+    return row({
+      cell(header,2)
+    })
+  end,
   
-  local panelLayout = {
-    tag="TableLayout",
-    attributes={
-      color="rgba(0,0,0,0.7)",
-    },
-    children={}
-  }
+  countRow = function()
+    local label = {
+      tag="Text",
+      value="Player Count",
+      attributes={
+        resizeTextForBestFit=true
+        , color="white"
+      }
+    }
+  
+    local dropdown = {
+      tag="Dropdown"
+      , attributes={
+        onValueChanged=scriptContainerGUID .. "/setPlayerCount"
+      }
+      , children={option(1),option(2),option(3),option(4)}
+    }
+  
+    return row({
+      cell(label)
+      , cell(dropdown)
+    })
+  end,
 
-  table.insert(panelLayout.children, playerHeaderRow())
-  table.insert(panelLayout.children, playerPanelCountRow())
-  table.insert(panelLayout.children, playerPanelButtonRow())
-  table.insert(panel.children, panelLayout)
+  buttonRow = function()
+    local button = {
+      tag="Button",
+      attributes={
+        onClick=scriptContainerGUID .. "/setPlayers",
+        fontSize=12,
+      },
+      value="Set Players",
+    }
+  
+    return row({
+      cell(button, 2)
+    })
+  end,
 
-  return panel
-end
+  make = function(self)
+    log("Building Player Panel")
+    
+    local panel = {
+      tag="Panel",
+      attributes={
+        id="playerPanel"
+        , width = "30%"
+        , height = "40%"
+        , active = flags.ui.player or false
+      },
+      children={}
+    }
+    
+    local panelLayout = {
+      tag="TableLayout",
+      attributes={
+        color="rgba(0,0,0,0.7)",
+      },
+      children={}
+    }
+  
+    table.insert(panelLayout.children, self.headerRow())
+    table.insert(panelLayout.children, self.countRow())
+    table.insert(panelLayout.children, self.buttonRow())
+    table.insert(panel.children, panelLayout)
+
+    return panel
+  end
+}
 
 -- Hero Panel Helpers
 function publicPrivateClicked(player, option, id)
@@ -1075,127 +1074,103 @@ function setPlaymat(player, option, id)
   playmat = option
 end
 
--- Hero Panel Assets
-function heroHeaderRow()
-  local header = {
-    tag="Text",
-    value="Hero Builder",
-    attributes={
-      resizeTextForBestFit=true
-      , color="blue"
+heroPanel = {
+  headerRow = function()
+    local header = {
+      tag="Text",
+      value="Hero Builder",
+      attributes={
+        resizeTextForBestFit=true
+        , color="blue"
+      }
     }
-  }
-
-  return row({
-    cell(header,2)
-  })
-end
-
-function heroPanelMarvelDBRow()
-  -- Textbox for deckID
-  local deckIdInput = {
-    tag = "InputField"
-    , attributes = {
-      id = "deckIdInput"
-      , placeholder = "Deck ID"
-      , tooltip = [[
-        *****PLEASE USE A PRIVATE DECK IF JUST FOR TTS TO AVOID FLOODING MARVELDB PUBLIC DECK LISTS!*****
-        Input deck ID from MarvelDB URL of the published version of the deck
-        Example: For the URL 'https://marvelcdb.com/decklist/view/449/wakanda-forever-and-ever-and-ever-and-ever-an-1.0', you should input '449'
-        ]]
-      , onValueChanged = scriptContainerGUID .. "/" .. "deckIdInputTyped"
-    }
-  }
-
-  -- Toggle for public/private
-  local publicPrivateToggle = {
-    tag = "Button"
-    , attributes = {
-      id = "publicPrivateButton"
-      , text = "Private Deck"
-      , tooltip = "Click to toggle Private/Public deck ID"
-      , onClick = scriptContainerGUID .. "/" .. "publicPrivateClicked"
-      , textColor = textColor
-      , fontSize = 16
-      , isOn = "True"
-    }
-  }
-
-  return row({
-    cell(deckIdInput),
-    cell(publicPrivateToggle)
-  })
-end
-
-function heroPanelPlaymatRow()
-  local label = {
-    tag="Text",
-    value="Playmat",
-    attributes={
-      resizeTextForBestFit=true
-      , color="Blue"
-    }
-  }
-
-  local dropdown = {
-    tag="Dropdown"
-    , attributes={
-      onValueChanged=scriptContainerGUID .. "/setPlaymat"
-    }
-    , children=generateOptionsFromBagContents(playmatBagGUID, setPlaymat)
-  }
-
-  return row({
-    cell(label)
-    , cell(dropdown)
-  })
-end
-
-function heroPanelButtonRow()
-  local button = {
-    tag="Button",
-    attributes={
-      onClick=scriptContainerGUID .. "/buildHeroDeckClicked",
-      fontSize=12,
-    },
-    value="Build Hero Deck",
-  }
-
-  return row({
-    cell(button, 2)
-  })
-end
-
-function makeHeroPanel()
-  log("Building Hero Panel")
   
-  local panel = {
-    tag="Panel",
-    attributes={
-      id="heroPanel"
-      , width = "30%"
-      , height = "40%"
-      , active = flags.ui.hero or false
-    },
-    children={}
-  }
+    return row({
+      cell(header,2)
+    })
+  end,
   
-  local panelLayout = {
-    tag="TableLayout",
-    attributes={
-      color="rgba(0,0,0,0.7)",
-    },
-    children={}
-  }
-
-  table.insert(panelLayout.children, heroHeaderRow())
-  table.insert(panelLayout.children, heroPanelMarvelDBRow())
-  table.insert(panelLayout.children, heroPanelPlaymatRow())
-  table.insert(panelLayout.children, heroPanelButtonRow())
-  table.insert(panel.children, panelLayout)
-
-  return panel
-end
+  marvelDBRow = function()
+    -- Textbox for deckID
+    local deckIdInput = {
+      tag = "InputField"
+      , attributes = {
+        id = "deckIdInput"
+        , placeholder = "Deck ID"
+        , tooltip = [[
+          *****PLEASE USE A PRIVATE DECK IF JUST FOR TTS TO AVOID FLOODING MARVELDB PUBLIC DECK LISTS!*****
+          Input deck ID from MarvelDB URL of the published version of the deck
+          Example: For the URL 'https://marvelcdb.com/decklist/view/449/wakanda-forever-and-ever-and-ever-and-ever-an-1.0', you should input '449'
+          ]]
+        , onValueChanged = scriptContainerGUID .. "/" .. "deckIdInputTyped"
+      }
+    }
+  
+    -- Toggle for public/private
+    local publicPrivateToggle = {
+      tag = "Button"
+      , attributes = {
+        id = "publicPrivateButton"
+        , text = "Private Deck"
+        , tooltip = "Click to toggle Private/Public deck ID"
+        , onClick = scriptContainerGUID .. "/" .. "publicPrivateClicked"
+        , textColor = textColor
+        , fontSize = 16
+        , isOn = "True"
+      }
+    }
+  
+    return row({
+      cell(deckIdInput),
+      cell(publicPrivateToggle)
+    })
+  end,
+  
+  buttonRow = function()
+    local button = {
+      tag="Button",
+      attributes={
+        onClick=scriptContainerGUID .. "/buildHeroDeckClicked",
+        fontSize=12,
+      },
+      value="Build Hero Deck",
+    }
+  
+    return row({
+      cell(button, 2)
+    })
+  end,
+  
+  make = function(self)
+    log("Building Hero Panel")
+    
+    local panel = {
+      tag="Panel",
+      attributes={
+        id="heroPanel"
+        , width = "30%"
+        , height = "40%"
+        , active = flags.ui.hero or false
+      },
+      children={}
+    }
+    
+    local panelLayout = {
+      tag="TableLayout",
+      attributes={
+        color="rgba(0,0,0,0.7)",
+      },
+      children={}
+    }
+  
+    table.insert(panelLayout.children, self.headerRow())
+    table.insert(panelLayout.children, self.marvelDBRow())
+    table.insert(panelLayout.children, self.buttonRow())
+    table.insert(panel.children, panelLayout)
+  
+    return panel
+  end
+}
 
 -- Encounter Panel Helpers
 function setScenario(player, option, id)
@@ -1217,121 +1192,123 @@ function setExpert(player, option, id)
 end
 
 -- Encounter Panel Assets
-function encounterHeaderRow()
-  local header = {
-    tag="Text",
-    value="Encounter Builder",
-    attributes={
-      resizeTextForBestFit=true
-      , color="orange"
+encounterPanel = {
+  headerRow = function()
+    local header = {
+      tag="Text",
+      value="Encounter Builder",
+      attributes={
+        resizeTextForBestFit=true
+        , color="orange"
+      }
     }
-  }
-
-  return row({
-    cell(header,2)
-  })
-end
-
-function encounterPanelScenarioRow()
-  local label = {
-    tag="Text",
-    value="Scenario",
-    attributes={
-      resizeTextForBestFit=true
-      , color="orange"
-    }
-  }
-
-  local dropdown = {
-    tag="Dropdown"
-    , attributes={
-      onValueChanged=scriptContainerGUID .. "/setScenario"
-    }
-    , children=generateOptionsFromBagContents(scenariosBagGUID, setScenario, true)
-  }
-
-  return row({
-    cell(label)
-    , cell(dropdown)
-  })
-end
-
-function encounterPanelModularEncounterRow()
-  local label = {
-    tag="Text",
-    value="Modular Encounter",
-    attributes={
-      resizeTextForBestFit=true
-      , color="orange"
-    }
-  }
-
-  local dropdown = {
-    tag="Dropdown"
-    , attributes={
-      onValueChanged=scriptContainerGUID .. "/setModularEncounter"
-    }
-    , children=generateOptionsFromBagContents(modularEncountersBagGUID, setModularEncounter, true)
-  }
-
-  return row({
-    cell(label)
-    , cell(dropdown)
-  })
-end
-
-function encounterPanelOptionsRow()
-  return row({
-    cell(toggle("Include Expert Encounter Set", "setExpert", includeExpert), 2)
-  })
-end
-
-function encounterPanelButtonRow()
-  local button = {
-    tag="Button",
-    attributes={
-      onClick=scriptContainerGUID .. "/buildEncounterDeckClicked",
-      fontSize=12,
-    },
-    value="Build Encounter Deck",
-  }
-
-  return row({
-    cell(button, 2)
-  })
-end
-
-function makeEncounterPanel()
-  log("Building Encounter Panel")
   
-  local panel = {
-    tag="Panel",
-    attributes={
-      id="encounterPanel"
-      , width = "30%"
-      , height = "40%"
-      , active =  flags.ui.encounter or false
-    },
-    children={}
-  }
+    return row({
+      cell(header,2)
+    })
+  end,
   
-  local panelLayout = {
-    tag="TableLayout",
-    attributes={
-      color="rgba(0,0,0,0.7)",
-    },
-    children={}
-  }
+  scenarioRow = function()
+    local label = {
+      tag="Text",
+      value="Scenario",
+      attributes={
+        resizeTextForBestFit=true
+        , color="orange"
+      }
+    }
+  
+    local dropdown = {
+      tag="Dropdown"
+      , attributes={
+        onValueChanged=scriptContainerGUID .. "/setScenario"
+      }
+      , children=generateOptionsFromBagContents(scenariosBagGUID, setScenario, true)
+    }
+  
+    return row({
+      cell(label)
+      , cell(dropdown)
+    })
+  end,
+  
+  modularEncounterRow = function()
+    local label = {
+      tag="Text",
+      value="Modular Encounter",
+      attributes={
+        resizeTextForBestFit=true
+        , color="orange"
+      }
+    }
+  
+    local dropdown = {
+      tag="Dropdown"
+      , attributes={
+        onValueChanged=scriptContainerGUID .. "/setModularEncounter"
+      }
+      , children=generateOptionsFromBagContents(modularEncountersBagGUID, setModularEncounter, true)
+    }
+  
+    return row({
+      cell(label)
+      , cell(dropdown)
+    })
+  end,
+  
+  optionsRow = function()
+    return row({
+      cell(toggle("Include Expert Encounter Set", "setExpert", includeExpert), 2)
+    })
+  end,
+  
+  buttonRow = function()
+    local button = {
+      tag="Button",
+      attributes={
+        onClick=scriptContainerGUID .. "/buildEncounterDeckClicked",
+        fontSize=12,
+      },
+      value="Build Encounter Deck",
+    }
+  
+    return row({
+      cell(button, 2)
+    })
+  end,
 
-  table.insert(panelLayout.children, encounterHeaderRow())
-  table.insert(panelLayout.children, encounterPanelScenarioRow())
-  table.insert(panelLayout.children, encounterPanelModularEncounterRow())
-  table.insert(panelLayout.children, encounterPanelOptionsRow())
-  table.insert(panelLayout.children, encounterPanelButtonRow())
-  table.insert(panel.children, panelLayout)
-
-  return panel
-end
+  make = function(self)
+    log("Building Encounter Panel")
+    
+    local panel = {
+      tag="Panel",
+      attributes={
+        id="encounterPanel"
+        , width = "30%"
+        , height = "40%"
+        , active =  flags.ui.encounter or false
+      },
+      children={}
+    }
+    
+    local panelLayout = {
+      tag="TableLayout",
+      attributes={
+        color="rgba(0,0,0,0.7)",
+      },
+      children={}
+    }
+  
+    table.insert(panelLayout.children, self.headerRow())
+    table.insert(panelLayout.children, self.scenarioRow())
+    table.insert(panelLayout.children, self.modularEncounterRow())
+    table.insert(panelLayout.children, self.optionsRow())
+    table.insert(panelLayout.children, self.buttonRow())
+    table.insert(panel.children, panelLayout)
+  
+    return panel
+  end
+}
 
 --[[ Helper Functions ]]--
 -- Check to see if value is in table
