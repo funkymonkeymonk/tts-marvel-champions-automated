@@ -79,7 +79,7 @@ function onLoad()
   playerColors = {"Blue", "Red", "Yellow", "Green"}
 
   -- Create Interface
-  makeUI()
+  uiBuilder.makeUI()
   uiToggleButton()
   if flags.heroSpawnTesting then buildHeroDeckClicked(Player["Blue"]) end
   if flags.encounterSpawnTesting then buildEncounterDeckClicked(Player["Blue"]) end
@@ -882,77 +882,79 @@ function onScriptingButtonDown(index, color)
   action[index]()
 end
 
--- Make the Main UI
-function makeUI()
-  log("Building UI")
+uiBuilder = {
+  -- Make the Main UI
+  makeUI = function()
+    log("Building UI")
 
-  local marvelUI = {}
-  
-  local sidebarLayout = {
-    tag="VerticalLayout",
-    attributes={
-      id="marvelUILayout"
-      , rectAlignment="MiddleRight"
-      , height=100
-      , width=100
-      , color="rgba(0,0,0,0.7)"
-      , active= flags.ui.main or false
-    },
-    children={}
-  }
-  
-  local playerButton = {
-    tag="Button",
-    attributes={
-      onClick=scriptContainerGUID .. "/playerButtonClicked",
-      fontSize=12,
-    },
-    value="Players",
-  }
+    local marvelUI = {}
+    
+    local sidebarLayout = {
+      tag="VerticalLayout",
+      attributes={
+        id="marvelUILayout"
+        , rectAlignment="MiddleRight"
+        , height=100
+        , width=100
+        , color="rgba(0,0,0,0.7)"
+        , active= flags.ui.main or false
+      },
+      children={}
+    }
+    
+    local playerButton = {
+      tag="Button",
+      attributes={
+        onClick=scriptContainerGUID .. "/playerButtonClicked",
+        fontSize=12,
+      },
+      value="Players",
+    }
 
-  local heroButton = {
-    tag="Button",
-    attributes={
-      onClick=scriptContainerGUID .. "/heroButtonClicked",
-      fontSize=12,
-    },
-    value="Hero Builder",
-  }
-  
-  local encounterButton = {
-    tag="Button",
-    attributes={
-      onClick=scriptContainerGUID .. "/encounterButtonClicked",
-      fontSize=12,
-    },
-    value="Encounter Builder",
-  }
+    local heroButton = {
+      tag="Button",
+      attributes={
+        onClick=scriptContainerGUID .. "/heroButtonClicked",
+        fontSize=12,
+      },
+      value="Hero Builder",
+    }
+    
+    local encounterButton = {
+      tag="Button",
+      attributes={
+        onClick=scriptContainerGUID .. "/encounterButtonClicked",
+        fontSize=12,
+      },
+      value="Encounter Builder",
+    }
 
-  local closeButton = {
-    tag="Button",
-    attributes={
-      onClick=scriptContainerGUID .. "/toggleUI"
-      , tooltip="You can also toggle the UI by clicking the \nMarvel Champions Helper Tile on the table."
-      , fontSize=12
-    },
-    value="Close Marvel UI",
-  }
+    local closeButton = {
+      tag="Button",
+      attributes={
+        onClick=scriptContainerGUID .. "/toggleUI"
+        , tooltip="You can also toggle the UI by clicking the \nMarvel Champions Helper Tile on the table."
+        , fontSize=12
+      },
+      value="Close Marvel UI",
+    }
 
-  table.insert(sidebarLayout.children, playerButton)
-  table.insert(sidebarLayout.children, heroButton)
-  table.insert(sidebarLayout.children, encounterButton)
-  table.insert(sidebarLayout.children, closeButton)
+    table.insert(sidebarLayout.children, playerButton)
+    table.insert(sidebarLayout.children, heroButton)
+    table.insert(sidebarLayout.children, encounterButton)
+    table.insert(sidebarLayout.children, closeButton)
 
-  table.insert(marvelUI, sidebarLayout)
-  table.insert(marvelUI, makeHeroPanel())
-  table.insert(marvelUI, makeEncounterPanel())
-  table.insert(marvelUI, makePlayerPanel())
-  
-  -- Does this remove any other mods custom UI's?
-  -- The api docs aren't super clear and I don't see a way to get the current UI and append
-  -- It doesn't seem like it
-  UI.setXmlTable(marvelUI)
-end
+    table.insert(marvelUI, sidebarLayout)
+    table.insert(marvelUI, makeHeroPanel())
+    table.insert(marvelUI, makeEncounterPanel())
+    table.insert(marvelUI, makePlayerPanel())
+    
+    -- Does this remove any other mods custom UI's?
+    -- The api docs aren't super clear and I don't see a way to get the current UI and append
+    -- It doesn't seem like it
+    UI.setXmlTable(marvelUI)
+  end
+}
 
 function uiToggleButton()
   tile = getObjectFromGUID(scriptContainerGUID)
