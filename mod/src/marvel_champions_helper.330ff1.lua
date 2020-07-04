@@ -27,8 +27,8 @@
 
 -- Testing flags
 flags = {
-  -- setTestingDeckIds = true,
-  -- heroSpawnTesting = true,
+   setTestingDeckIds = true,
+   heroSpawnTesting = true,
   -- encounterSpawnTesting = true,
   ui = {
     -- main = true,
@@ -41,7 +41,7 @@ flags = {
 function onLoad()
   --[[ print('onLoad!') --]]
   init()
-    
+
   -- MarvelDB Constants
   apiURL="https://marvelcdb.com/api/"
   publicDeckURL=apiURL .. "public/decklist/"
@@ -63,7 +63,7 @@ function onLoad()
   -- X = Left/Right
   -- Y = Above/Below the table 
   -- Z = Up/Down table
-  
+
   -- Global rotations
   FLIPPED = {180,0,0}
   SIDEWAYS = {0,90,0}
@@ -108,22 +108,22 @@ function getFromBagOld(name, cloneParams, bagGUID)
   local bagContents = bag.getObjects()
 
   if (bagContents != nil) then
-    for k,v in pairs(bagContents) do
-      if (v.name == name) then
-        bagObjectParameters = {
-          position = {0,0,60}
-          , rotation = self.getRotation()
-          , guid = v.guid
-          , smooth = false
-        }
-        
-        local bagItem = bag.takeObject(bagObjectParameters)
-        local cloneItem = bagItem.clone(cloneParams)
-        bag.putObject(bagItem)
-        log(name .. ' loaded')
-        return cloneItem
-      end
-    end
+  for k,v in pairs(bagContents) do
+  if (v.name == name) then
+  bagObjectParameters = {
+  position = {0,0,60}
+  , rotation = self.getRotation()
+  , guid = v.guid
+  , smooth = false
+  }
+
+  local bagItem = bag.takeObject(bagObjectParameters)
+  local cloneItem = bagItem.clone(cloneParams)
+  bag.putObject(bagItem)
+  log(name .. ' loaded')
+  return cloneItem
+  end
+  end
   end
 
   print(name.." not found in bag")
@@ -142,26 +142,26 @@ function getFromBag(params)
   local bagGUID = params.guid
   local bag = getObjectFromGUID(bagGUID)
   local bagContents = bag.getObjects()
-  
+
   log("Searching for " .. searchTerm .. " by " .. searchBy)
 
   if (bagContents != nil) then
-    for k,v in pairs(bagContents) do
-      if (v[searchBy] == searchTerm) then
-        bagObjectParameters = {
-          position = {0,0,60}
-          , rotation = self.getRotation()
-          , guid = v.guid
-          , smooth = false
-        }
-        
-        local bagItem = bag.takeObject(bagObjectParameters)
-        local cloneItem = bagItem.clone(cloneParams)
-        bag.putObject(bagItem)
-        log(searchTerm .. ' loaded')
-        return cloneItem
-      end
-    end
+  for k,v in pairs(bagContents) do
+  if (v[searchBy] == searchTerm) then
+  bagObjectParameters = {
+  position = {0,0,60}
+  , rotation = self.getRotation()
+  , guid = v.guid
+  , smooth = false
+  }
+
+  local bagItem = bag.takeObject(bagObjectParameters)
+  local cloneItem = bagItem.clone(cloneParams)
+  bag.putObject(bagItem)
+  log(searchTerm .. ' loaded')
+  return cloneItem
+  end
+  end
   end
 
   print(searchTerm.." not found in bag")
@@ -174,19 +174,19 @@ function getFromDeck(params)
   local bagGUID = params.guid
   local bag = getObjectFromGUID(bagGUID)
   local bagContents = bag.getObjects()
-  
+
   log("Searching for " .. searchTerm .. " by " .. searchBy)
 
   if (bagContents != nil) then
-    for k,v in pairs(bagContents) do
-      if (v[searchBy] == searchTerm) then
-        cloneParams.guid = v.guid
-        
-        local bagItem = bag.takeObject(cloneParams)
-        log(searchTerm .. ' retrieved')
-        return bagItem
-      end
-    end
+  for k,v in pairs(bagContents) do
+  if (v[searchBy] == searchTerm) then
+  cloneParams.guid = v.guid
+
+  local bagItem = bag.takeObject(cloneParams)
+  log(searchTerm .. ' retrieved')
+  return bagItem
+  end
+  end
   end
 
   print(searchTerm.." not found in bag")
@@ -226,7 +226,7 @@ function deckReadCallback(req)
     print (req.error)
     return
   end
-  
+
   if (JsonDeckRes == nil)
   then
     broadcastToAll("Deck not found!", {0.5,0.5,0.5})
@@ -307,46 +307,46 @@ function basicSetup(params)
   local scenarioBag = getObjectFromGUID(scenarioBagGUID)
   local expert = params.expert
   local modularEncounters = params.modularEncounters
-  local villianName = params.villianName 
-  local mainSchemeName =params.mainSchemeName 
+  local villianName = params.villianName
+  local mainSchemeName =params.mainSchemeName
   local includeStandard = params.includeStandard
 
   -- Spend some effort to make this sound epic
   local announce = "Constructing"
   if expert == "True" then announce = announce .. " expert" end
   if modularEncounters != nil then
-    announce = announce .. " " .. villianName .. " encounter deck with " .. modularEncounters
+  announce = announce .. " " .. villianName .. " encounter deck with " .. modularEncounters
   else
-    announce = announce .. " " .. villianName .. " encounter deck."
+  announce = announce .. " " .. villianName .. " encounter deck."
   end
 
   broadcastToAll(announce)
 
   -- Delete this once there is a better way of managing state
   function putOutTokens()
-    local villianHealthTrackerParams = { position = {3,0,13.25}, rotation={0,0,0}}
-    getFromBag({
-      searchBy = "name",
-      searchTerm = "Health Tracker",
-      params =  villianHealthTrackerParams,
-      guid = tokenBagGUID
-    })
-  
-    local threatBagParams = { position = {11.25,0,14.5}, rotation={0,0,0}}
-    getFromBag({
-      searchBy = "name",
-      searchTerm = "Threat",
-      params =  threatBagParams,
-      guid = tokenBagGUID
-    })
-  
-    local accelerationBagParams = { position = {8.5,0,14.5}, rotation={0,0,0}}
-    getFromBag({
-      searchBy = "name",
-      searchTerm = "Acceleration",
-      params =  accelerationBagParams,
-      guid = tokenBagGUID
-    })
+  local villianHealthTrackerParams = { position = {3,0,13.25}, rotation={0,0,0}}
+  getFromBag({
+  searchBy = "name",
+  searchTerm = "Health Tracker",
+  params =  villianHealthTrackerParams,
+  guid = tokenBagGUID
+  })
+
+  local threatBagParams = { position = {11.25,0,14.5}, rotation={0,0,0}}
+  getFromBag({
+  searchBy = "name",
+  searchTerm = "Threat",
+  params =  threatBagParams,
+  guid = tokenBagGUID
+  })
+
+  local accelerationBagParams = { position = {8.5,0,14.5}, rotation={0,0,0}}
+  getFromBag({
+  searchBy = "name",
+  searchTerm = "Acceleration",
+  params =  accelerationBagParams,
+  guid = tokenBagGUID
+  })
   end
 
   local waitfor = {}
@@ -354,95 +354,95 @@ function basicSetup(params)
   -- Put out the encounter deck
   waitfor.encounterDeck = false
   local encounterDeckParams = {
-    position = {-3,0,9.5}
-    , rotation = {180,0,0}
-    , callback_function = || markAsFinished(waitfor, "encounterDeck")
+  position = {-3,0,9.5}
+  , rotation = {180,0,0}
+  , callback_function = || markAsFinished(waitfor, "encounterDeck")
   }
   params.encounterDeckGUID = getFromBag({
-    searchBy = "name",
-    searchTerm = "Encounter Deck",
-    params =  encounterDeckParams,
-    guid = scenarioBagGUID
-  }).guid 
+  searchBy = "name",
+  searchTerm = "Encounter Deck",
+  params =  encounterDeckParams,
+  guid = scenarioBagGUID
+  }).guid
 
   -- Put Out the Main Scheme
   waitfor.mainScheme = false
   local mainSchemeParams = {
-    position = {10,0,10.4}
-    , rotation={0,90,180}
-    , callback_function = || markAsFinished(waitfor, "mainScheme")
+  position = {10,0,10.4}
+  , rotation={0,90,180}
+  , callback_function = || markAsFinished(waitfor, "mainScheme")
   }
   params.mainSchemeGUID = getFromBag({
-    searchBy = "name",
-    searchTerm = mainSchemeName,
-    params =  mainSchemeParams,
-    guid = scenarioBagGUID
+  searchBy = "name",
+  searchTerm = mainSchemeName,
+  params =  mainSchemeParams,
+  guid = scenarioBagGUID
   }).guid
 
   -- Put Out the Villian
   waitfor.villian = false
   local villianParams = {
-    position = {3,0,9.5}
-    , callback_function = || markAsFinished(waitfor, "villian")
+  position = {3,0,9.5}
+  , callback_function = || markAsFinished(waitfor, "villian")
   }
   params.villianGUID = getFromBag({
-    searchBy = "name",
-    searchTerm = villianName,
-    params =  villianParams,
-    guid = scenarioBagGUID
+  searchBy = "name",
+  searchTerm = villianName,
+  params =  villianParams,
+  guid = scenarioBagGUID
   }).guid
 
   putOutTokens() -- Remove this once a good villian and scenario board is created
 
-  if includeStandard == "True" then 
-    getFromBag({
-      searchBy = "name",
-      searchTerm = "Standard",
-      params = encounterDeckParams,
-      guid = encountersBagGUID
-    })
+  if includeStandard == "True" then
+  getFromBag({
+  searchBy = "name",
+  searchTerm = "Standard",
+  params = encounterDeckParams,
+  guid = encountersBagGUID
+  })
   end
 
-  if expert == "True" then 
-    getFromBag({
-      searchBy = "name",
-      searchTerm = "Expert",
-      params = encounterDeckParams,
-      guid = encountersBagGUID
-    })
+  if expert == "True" then
+  getFromBag({
+  searchBy = "name",
+  searchTerm = "Expert",
+  params = encounterDeckParams,
+  guid = encountersBagGUID
+  })
   end
 
   if modularEnfcounters != nil then
-    local modularEncounterName = modularEncounters
-    getFromBag({
-      searchBy = "name",
-      searchTerm = modularEncounterName,
-      params = encounterDeckParams,
-      guid = modularEncountersBagGUID
-    })
+  local modularEncounterName = modularEncounters
+  getFromBag({
+  searchBy = "name",
+  searchTerm = modularEncounterName,
+  params = encounterDeckParams,
+  guid = modularEncountersBagGUID
+  })
   end
-  
+
   if params.basicExpert == "True" then
-    Wait.condition(
-      || basicExpert(params),
-      || allFinished(waitfor),
-      3,
-      || error("Timeout spawning encounter: "..dump(params))
-    )
+  Wait.condition(
+  || basicExpert(params),
+  || allFinished(waitfor),
+  3,
+  || error("Timeout spawning encounter: "..dump(params))
+  )
   else
-    Wait.condition(
-      || scenarioBag.call("scenarioSpecificSetup", params),
-      || allFinished(waitfor),
-      3,
-      || error("Timeout spawning encounter: "..dump(params)) 
-    )
+  Wait.condition(
+  || scenarioBag.call("scenarioSpecificSetup", params),
+  || allFinished(waitfor),
+  3,
+  || error("Timeout spawning encounter: "..dump(params))
+  )
   end
 end
 
 function basicExpert(params)
   local scenarioBagGUID = params.scenarioBagGUID
   local scenarioBag = getObjectFromGUID(scenarioBagGUID)
-  
+
   local villianGUID = params.villianGUID
   local villianName = params.villianName
   local expert = params.expert
@@ -451,41 +451,41 @@ function basicExpert(params)
     -- Remove Villian I
     local trashParams = { position = {-1000,0,-1000} }
     destroyObject(
-      getFromDeck({
-        searchBy = "name",
-        searchTerm = villianName .. " I",
-        params =  trashParams,
-        guid = villianGUID
-      })
+            getFromDeck({
+              searchBy = "name",
+              searchTerm = villianName .. " I",
+              params =  trashParams,
+              guid = villianGUID
+            })
     )
 
   else
     -- Remove Villian III
     local trashParams = { position = {-1000,0,-1000} }
     destroyObject(
-      getFromDeck({
-        searchBy = "name",
-        searchTerm = villianName .. " III",
-        params =  trashParams,
-        guid = villianGUID
-      })
+            getFromDeck({
+              searchBy = "name",
+              searchTerm = villianName .. " III",
+              params =  trashParams,
+              guid = villianGUID
+            })
     )
   end
-  
+
   scenarioBag.call("scenarioSpecificSetup", params)
 end
 
 function externalSetup(scenarioBag)
   local params = scenarioBag.getTable("scenarioParameters")
   params.scenarioBagGUID = scenarioBag.guid
-  
+
   if includeExpert == "True" then params.expert = "True" end
   if modularEncounter != nil then params.modularEncounters = modularEncounter end
-  
+
   if params.basicSetup == "True" then
-    params = basicSetup(params)
+  params = basicSetup(params)
   else
-    scenarioBag.call("scenarioSpecificSetup", params)
+  scenarioBag.call("scenarioSpecificSetup", params)
   end
 end
 
@@ -494,10 +494,10 @@ function buildEncounterDeckClicked()
 
   if scenario == "Random" then scenario = getRandomFromBag(scenariosBagGUID) end
   if modularEncounter == "Random" then modularEncounter = getRandomFromBag(modularEncountersBagGUID) end
-  
+
   local scenarioBagParams = {
     position = {-10,0,15}
-    , callback_function = callback
+  , callback_function = callback
   }
   getFromBagOld(scenario, scenarioBagParams, scenariosBagGUID)
   UI.hide("encounterPanel")
@@ -508,21 +508,21 @@ function setupHero(heroBag)
   -- Positions
   local heroCardOffset = {7.9,1,-1.75}
   local heroCardParams = {
-    position = LocalPos(heroBag, heroCardOffset),
+    position = positioning:LocalPos(heroBag, heroCardOffset),
     rotation = FLIPPED
   }
 
   local obligationOffset = {0,1,-9}
   local obligationParams = {
-    position = LocalPos(heroBag, obligationOffset)
+    position = positioning:LocalPos(heroBag, obligationOffset)
   }
 
   local nemesisOffset = {4.5,1,8.5}
   local nemesisParams = {
-    position = LocalPos(heroBag, nemesisOffset),
+    position = positioning:LocalPos(heroBag, nemesisOffset),
     rotation = SIDEWAYS
   }
-  
+
   local heroBagOffset = {-9,1,-8.5}
   --[[
   TODO: Put Hero name on card by moving to description based tagging
@@ -548,16 +548,16 @@ function buildHeroDeckClicked(player)
     broadcastToAll("Please take a seat at the table before building your deck "..player.steam_name)
     return false
   end
-  
+
   print("Setting up playspace for "..player.steam_name)
   -- Get The Deck Information while setting up the playspace
   getDeckFromDB()
   -- Positions
   local playerPos = player.getHandTransform().position
   local playmatOffset = {0,-3.5,11.75}
-  local playmatParams = { position = Vect_Sum(playerPos, playmatOffset)}
+  local playmatParams = { position = positioning.Vect_Sum(playerPos, playmatOffset)}
 
-  tokenParams = |i| { position = Vect_Sum(playerPos, {-0.5 + i * 2.5, -3.6, 3.25}), rotation = {0,0,0}}
+  tokenParams = |i| { position = positioning.Vect_Sum(playerPos, {-0.5 + i * 2.5, -3.6, 3.25}), rotation = {0,0,0}}
 
   local objs = {}
   -- Get Playspace Items
@@ -570,22 +570,22 @@ function buildHeroDeckClicked(player)
   table.insert(objs, getFromBagOld("Confused", tokenParams(4), tokenBagGUID))
 
   for k,v in pairs(objs) do v.setLock(true) end
-  
+
   -- Wait for playmat to spawn before spawning things on top of it
   local playmatTimeout = 60
   Wait.condition(
-    || spawnHealthTracker(player),
-    || not playmat.spawning,
-    timeout,
-    || onTimeout("spawning playmat", playmatTimeout)
+  || spawnHealthTracker(player),
+  || not playmat.spawning,
+  timeout,
+  || onTimeout("spawning playmat", playmatTimeout)
   )
 
   local marvelcdbTimeout = 300
   Wait.condition(
-    || createDeck(playmat),
-    || doneSlots == numSlots and not playmat.spawning,
-    timeout,
-    || onTimeout("Getting deck from MarvelCDB", marvelcdbTimeout)
+  || createDeck(playmat),
+  || doneSlots == numSlots and not playmat.spawning,
+  timeout,
+  || onTimeout("Getting deck from MarvelCDB", marvelcdbTimeout)
   )
 end
 
@@ -636,19 +636,19 @@ function createDeck(playmat)
 
   local heroBagOffset = {0,0,0}
   local heroBagParams = {
-    position = LocalPos(playmat, heroBagOffset),
+    position = positioning:LocalPos(playmat, heroBagOffset),
     callback_function = setupHero
   }
 
   local heroDeckOffset = {-6.55,1,-5.3}
-  local heroDeckPos = LocalPos(playmat, heroDeckOffset)
-  
+  local heroDeckPos = positioning:LocalPos(playmat, heroDeckOffset)
+
   -- Unpack Hero Bag
   getFromBagOld(JsonDeckRes.investigator_name, heroBagParams, herosBagGUID)
-  
+
   -- Setup deck
   local cardpool = getFromBagOld("CardPool", cloneParams, herosBagGUID)
-  
+
   for k,v in pairs(cardList) do
     searchForCard(v.cardName, v.subName, v.cardCount, cardpool, heroDeckPos)
   end
@@ -660,8 +660,8 @@ function spawnHealthTracker(player)
   -- Positions
   local playerPos = player.getHandTransform().position
   local healthOffset = {-7.92, -3.6, 16.95}
-  local healthParams = { position = Vect_Sum(playerPos, healthOffset), rotation = {0,0,0}}
-  
+  local healthParams = { position = positioning.Vect_Sum(playerPos, healthOffset), rotation = {0,0,0}}
+
   local healthTracker = getFromBagOld("Health Tracker", healthParams, tokenBagGUID)
   -- healthTracker.setLock(true)
   healthTracker.setColorTint(player.color)
@@ -707,7 +707,7 @@ end
 
 function setHandPosition(color, position)
   local xVal = position
-  
+
   Player[color].setHandTransform({
     position = { ["x"] = xVal, ["y"] = 5, ["z"] = -20 },
     scale = { x=9, y=5.4, z=3.1}
@@ -732,7 +732,7 @@ function setPlayerPositions(playerCount)
 
   if (playerCount % 2 == 0) then
     playerPositions = evenPlayerPositions
-  else 
+  else
     playerPositions = oddPlayerPositions
   end
 
@@ -759,13 +759,13 @@ end
 uif = {
   cell = function(contents, colSpan)
     colSpan = colSpan or 1
-    
+
     return {
       tag="Cell"
-      , attributes={
+    , attributes={
         columnSpan=colSpan
       }
-      , children=contents
+    , children=contents
     }
   end,
 
@@ -776,26 +776,26 @@ uif = {
       children=cells
     }
   end,
-  
+
   option = function(value)
     return {
       tag="Option"
-      , value=value
+    , value=value
     }
   end,
-  
+
   toggle = function(value, onValueChanged, isOn, textColor)
     isOn = isOn or false
     textColor = textColor or "orange"
-  
+
     return {
       tag = "Toggle"
-      , value = value
-      , attributes = {
+    , value = value
+    , attributes = {
         onValueChanged = scriptContainerGUID .. "/" .. onValueChanged
-        , textColor = textColor
-        , fontSize = 16
-        , isOn = isOn
+      , textColor = textColor
+      , fontSize = 16
+      , isOn = isOn
       }
     }
   end
@@ -804,12 +804,12 @@ uif = {
 -- UI Helper Functions
 function toggleHidden(uiElement)
   local active = UI.getAttribute(uiElement, "active")
-  
+
   log(UI.getAttribute(uiElement, "id") .. " changed to " .. active)
-  
+
   -- Despite using boolean values, the attribute is a string so I have to use string matching.
   if active == "true" then
-    UI.hide(uiElement) 
+    UI.hide(uiElement)
   else
     UI.show(uiElement)
   end
@@ -820,22 +820,22 @@ function generateOptionsFromBagContents(bagGUID, setter, includeRandom)
   local first = true
   local options = {}
   local bagContents = getBagContents(bagGUID)
-  
+
   if (bagContents != nil) then
-    if includeRandom then
-      table.insert(options, uif.option("Random"))
-      setter("", "Random")
-      first = false
-    end
-    for k,v in pairs(bagContents) do
-      table.insert(options, uif.option(v.name))
-      if first then
-        setter("", v.name)
-        first = false
-      end
-    end
+  if includeRandom then
+  table.insert(options, uif.option("Random"))
+  setter("", "Random")
+  first = false
+  end
+  for k,v in pairs(bagContents) do
+  table.insert(options, uif.option(v.name))
+  if first then
+  setter("", v.name)
+  first = false
+  end
+  end
   else
-    print("Error: Bag " .. getBagName(bagGUID) .. "should not be empty")
+  print("Error: Bag " .. getBagName(bagGUID) .. "should not be empty")
   end
   return options
 end
@@ -880,7 +880,7 @@ function onScriptingButtonDown(index, color)
     [9]  = function () end,
     [10] = function () end,
   }
-  
+
   action[index]()
 end
 
@@ -894,7 +894,7 @@ uiBuilder = {
     table.insert(marvelUI, heroPanel:make())
     table.insert(marvelUI, encounterPanel:make())
     table.insert(marvelUI, playerPanel:make())
-    
+
     UI.setXmlTable(marvelUI)
   end,
 
@@ -982,36 +982,36 @@ playerPanel = {
       value="Players",
       attributes={
         resizeTextForBestFit=true
-        , color="white"
+      , color="white"
       }
     }
-  
+
     return uif.row({
       uif.cell(header,2)
     })
   end,
-  
+
   countRow = function()
     local label = {
       tag="Text",
       value="Player Count",
       attributes={
         resizeTextForBestFit=true
-        , color="white"
+      , color="white"
       }
     }
-  
+
     local dropdown = {
       tag="Dropdown"
-      , attributes={
+    , attributes={
         onValueChanged=scriptContainerGUID .. "/setPlayerCount"
       }
-      , children={uif.option(1),uif.option(2),uif.option(3),uif.option(4)}
+    , children={uif.option(1),uif.option(2),uif.option(3),uif.option(4)}
     }
-  
+
     return uif.row({
       uif.cell(label)
-      , uif.cell(dropdown)
+    , uif.cell(dropdown)
     })
   end,
 
@@ -1024,7 +1024,7 @@ playerPanel = {
       },
       value="Set Players",
     }
-  
+
     return uif.row({
       uif.cell(button, 2)
     })
@@ -1032,18 +1032,18 @@ playerPanel = {
 
   make = function(self)
     log("Building Player Panel")
-    
+
     local panel = {
       tag="Panel",
       attributes={
         id="playerPanel"
-        , width = "30%"
-        , height = "40%"
-        , active = flags.ui.player or false
+      , width = "30%"
+      , height = "40%"
+      , active = flags.ui.player or false
       },
       children={}
     }
-    
+
     local panelLayout = {
       tag="TableLayout",
       attributes={
@@ -1051,7 +1051,7 @@ playerPanel = {
       },
       children={}
     }
-  
+
     table.insert(panelLayout.children, self.headerRow())
     table.insert(panelLayout.children, self.countRow())
     table.insert(panelLayout.children, self.buttonRow())
@@ -1069,7 +1069,7 @@ function publicPrivateClicked(player, option, id)
   else
     UI.setAttribute(id, "text", "Public Deck")
   end
-  
+
   log("privateDeck changed to: " .. tostring(privateDeck))
 end
 
@@ -1088,51 +1088,51 @@ heroPanel = {
       value="Hero Builder",
       attributes={
         resizeTextForBestFit=true
-        , color="blue"
+      , color="blue"
       }
     }
-  
+
     return uif.row({
       uif.cell(header,2)
     })
   end,
-  
+
   marvelDBRow = function()
     -- Textbox for deckID
     local deckIdInput = {
       tag = "InputField"
-      , attributes = {
+    , attributes = {
         id = "deckIdInput"
-        , placeholder = "Deck ID"
-        , tooltip = [[
+      , placeholder = "Deck ID"
+      , tooltip = [[
           *****PLEASE USE A PRIVATE DECK IF JUST FOR TTS TO AVOID FLOODING MARVELDB PUBLIC DECK LISTS!*****
           Input deck ID from MarvelDB URL of the published version of the deck
           Example: For the URL 'https://marvelcdb.com/decklist/view/449/wakanda-forever-and-ever-and-ever-and-ever-an-1.0', you should input '449'
           ]]
-        , onValueChanged = scriptContainerGUID .. "/" .. "deckIdInputTyped"
+      , onValueChanged = scriptContainerGUID .. "/" .. "deckIdInputTyped"
       }
     }
-  
+
     -- Toggle for public/private
     local publicPrivateToggle = {
       tag = "Button"
-      , attributes = {
+    , attributes = {
         id = "publicPrivateButton"
-        , text = "Private Deck"
-        , tooltip = "Click to toggle Private/Public deck ID"
-        , onClick = scriptContainerGUID .. "/" .. "publicPrivateClicked"
-        , textColor = textColor
-        , fontSize = 16
-        , isOn = "True"
+      , text = "Private Deck"
+      , tooltip = "Click to toggle Private/Public deck ID"
+      , onClick = scriptContainerGUID .. "/" .. "publicPrivateClicked"
+      , textColor = textColor
+      , fontSize = 16
+      , isOn = "True"
       }
     }
-  
+
     return uif.row({
       uif.cell(deckIdInput),
       uif.cell(publicPrivateToggle)
     })
   end,
-  
+
   buttonRow = function()
     local button = {
       tag="Button",
@@ -1142,26 +1142,26 @@ heroPanel = {
       },
       value="Build Hero Deck",
     }
-  
+
     return uif.row({
       uif.cell(button, 2)
     })
   end,
-  
+
   make = function(self)
     log("Building Hero Panel")
-    
+
     local panel = {
       tag="Panel",
       attributes={
         id="heroPanel"
-        , width = "30%"
-        , height = "40%"
-        , active = flags.ui.hero or false
+      , width = "30%"
+      , height = "40%"
+      , active = flags.ui.hero or false
       },
       children={}
     }
-    
+
     local panelLayout = {
       tag="TableLayout",
       attributes={
@@ -1169,12 +1169,12 @@ heroPanel = {
       },
       children={}
     }
-  
+
     table.insert(panelLayout.children, self.headerRow())
     table.insert(panelLayout.children, self.marvelDBRow())
     table.insert(panelLayout.children, self.buttonRow())
     table.insert(panel.children, panelLayout)
-  
+
     return panel
   end
 }
@@ -1206,69 +1206,69 @@ encounterPanel = {
       value="Encounter Builder",
       attributes={
         resizeTextForBestFit=true
-        , color="orange"
+      , color="orange"
       }
     }
-  
+
     return uif.row({
       uif.cell(header,2)
     })
   end,
-  
+
   scenarioRow = function()
     local label = {
       tag="Text",
       value="Scenario",
       attributes={
         resizeTextForBestFit=true
-        , color="orange"
+      , color="orange"
       }
     }
-  
+
     local dropdown = {
       tag="Dropdown"
-      , attributes={
+    , attributes={
         onValueChanged=scriptContainerGUID .. "/setScenario"
       }
-      , children=generateOptionsFromBagContents(scenariosBagGUID, setScenario, true)
+    , children=generateOptionsFromBagContents(scenariosBagGUID, setScenario, true)
     }
-  
+
     return uif.row({
       uif.cell(label)
-      , uif.cell(dropdown)
+    , uif.cell(dropdown)
     })
   end,
-  
+
   modularEncounterRow = function()
     local label = {
       tag="Text",
       value="Modular Encounter",
       attributes={
         resizeTextForBestFit=true
-        , color="orange"
+      , color="orange"
       }
     }
-  
+
     local dropdown = {
       tag="Dropdown"
-      , attributes={
+    , attributes={
         onValueChanged=scriptContainerGUID .. "/setModularEncounter"
       }
-      , children=generateOptionsFromBagContents(modularEncountersBagGUID, setModularEncounter, true)
+    , children=generateOptionsFromBagContents(modularEncountersBagGUID, setModularEncounter, true)
     }
-  
+
     return uif.row({
       uif.cell(label)
-      , uif.cell(dropdown)
+    , uif.cell(dropdown)
     })
   end,
-  
+
   optionsRow = function()
     return uif.row({
       uif.cell(uif.toggle("Include Expert Encounter Set", "setExpert", includeExpert), 2)
     })
   end,
-  
+
   buttonRow = function()
     local button = {
       tag="Button",
@@ -1278,7 +1278,7 @@ encounterPanel = {
       },
       value="Build Encounter Deck",
     }
-  
+
     return uif.row({
       uif.cell(button, 2)
     })
@@ -1286,18 +1286,18 @@ encounterPanel = {
 
   make = function(self)
     log("Building Encounter Panel")
-    
+
     local panel = {
       tag="Panel",
       attributes={
         id="encounterPanel"
-        , width = "30%"
-        , height = "40%"
-        , active =  flags.ui.encounter or false
+      , width = "30%"
+      , height = "40%"
+      , active =  flags.ui.encounter or false
       },
       children={}
     }
-    
+
     local panelLayout = {
       tag="TableLayout",
       attributes={
@@ -1305,14 +1305,14 @@ encounterPanel = {
       },
       children={}
     }
-  
+
     table.insert(panelLayout.children, self.headerRow())
     table.insert(panelLayout.children, self.scenarioRow())
     table.insert(panelLayout.children, self.modularEncounterRow())
     table.insert(panelLayout.children, self.optionsRow())
     table.insert(panelLayout.children, self.buttonRow())
     table.insert(panel.children, panelLayout)
-  
+
     return panel
   end
 }
@@ -1331,14 +1331,14 @@ end
 -- From https://stackoverflow.com/questions/9168058/how-to-dump-a-table-to-console
 function dump(o)
   if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-        if type(k) ~= 'number' then k = '"'..k..'"' end
-        s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
+    local s = '{ '
+    for k,v in pairs(o) do
+      if type(k) ~= 'number' then k = '"'..k..'"' end
+      s = s .. '['..k..'] = ' .. dump(v) .. ','
+    end
+    return s .. '} '
   else
-      return tostring(o)
+    return tostring(o)
   end
 end
 
@@ -1353,72 +1353,73 @@ function onUpdate ()
 end
 
 -- From Dzikakulka's positioning script
--- Return position "position" in "object"'s frame of reference
--- (most likely the only function you want to directly access)
-function LocalPos(object, position)
+positioning = {
+  -- Return position "position" in "object"'s frame of reference
+  -- (most likely the only function you want to directly access)
+  LocalPos = function(self, object, position)
     local rot = object.getRotation()
     local lPos = {position[1], position[2], position[3]}
 
     -- Z-X-Y extrinsic
-    local zRot = RotMatrix('z', rot['z'])
-    lPos = RotateVector(zRot, lPos)
-    local xRot = RotMatrix('x', rot['x'])
-    lPos = RotateVector(xRot, lPos)
-    local yRot = RotMatrix('y', rot['y'])
-    lPos = RotateVector(yRot, lPos)
+    local zRot = self.RotMatrix('z', rot['z'])
+    lPos = self.RotateVector(zRot, lPos)
+    local xRot = self.RotMatrix('x', rot['x'])
+    lPos = self.RotateVector(xRot, lPos)
+    local yRot = self.RotMatrix('y', rot['y'])
+    lPos = self.RotateVector(yRot, lPos)
 
-    return Vect_Sum(lPos, object.getPosition())
-end
+    return positioning.Vect_Sum(lPos, object.getPosition())
+  end,
 
--- Build rotation matrix
--- 1st table = 1st row, 2nd table = 2nd row etc
-function RotMatrix(axis, angDeg)
+  -- Build rotation matrix
+  -- 1st table = 1st row, 2nd table = 2nd row etc
+  RotMatrix = function(axis, angDeg)
     local ang = math.rad(angDeg)
     local cs = math.cos
     local sn = math.sin
 
     if axis == 'x' then
-        return {
-                    { 1,        0,             0 },
-                    { 0,   cs(ang),   -1*sn(ang) },
-                    { 0,   sn(ang),      cs(ang) }
-                }
+      return {
+        { 1,        0,             0 },
+        { 0,   cs(ang),   -1*sn(ang) },
+        { 0,   sn(ang),      cs(ang) }
+      }
     elseif axis == 'y' then
-        return {
-                    {    cs(ang),   0,   sn(ang) },
-                    {          0,   1,         0 },
-                    { -1*sn(ang),   0,   cs(ang) }
-                }
+      return {
+        {    cs(ang),   0,   sn(ang) },
+        {          0,   1,         0 },
+        { -1*sn(ang),   0,   cs(ang) }
+      }
     elseif axis == 'z' then
-        return {
-                    { cs(ang),   -1*sn(ang),   0 },
-                    { sn(ang),      cs(ang),   0 },
-                    { 0,                  0,   1 }
-                }
+      return {
+        { cs(ang),   -1*sn(ang),   0 },
+        { sn(ang),      cs(ang),   0 },
+        { 0,                  0,   1 }
+      }
     end
-end
+  end,
 
--- Apply given rotation matrix on given vector
--- (multiply matrix and column vector)
-function RotateVector(rotMat, vect)
+  -- Apply given rotation matrix on given vector
+  -- (multiply matrix and column vector)
+  RotateVector = function(rotMat, vect)
     local out = {0, 0, 0}
     for i=1,3,1 do
-        for j=1,3,1 do
-            out[i] = out[i] + rotMat[i][j]*vect[j]
-        end
+      for j=1,3,1 do
+        out[i] = out[i] + rotMat[i][j]*vect[j]
+      end
     end
     return out
-end
+  end,
 
--- Sum of two vectors (of any size)
-function Vect_Sum(vec1, vec2)
+  -- Sum of two vectors (of any size)
+  Vect_Sum = function(vec1, vec2)
     local out = {}
     local k = 1
     while vec1[k] ~= nil and vec2[k] ~= nil do
-        out[k] = vec1[k] + vec2[k]
-        k = k+1
+      out[k] = vec1[k] + vec2[k]
+      k = k+1
     end
     return out
-end
--- End Dzikakulka's positioning script
+  end
+}
 
