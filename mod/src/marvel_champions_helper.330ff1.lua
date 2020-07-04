@@ -27,8 +27,8 @@
 
 -- Testing flags
 flags = {
-   setTestingDeckIds = true,
-   heroSpawnTesting = true,
+  --setTestingDeckIds = true,
+  --heroSpawnTesting = true,
   -- encounterSpawnTesting = true,
   ui = {
     -- main = true,
