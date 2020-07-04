@@ -27,9 +27,9 @@
 
 -- Testing flags
 flags = {
-  --setTestingDeckIds = true,
-  --heroSpawnTesting = true,
-  -- encounterSpawnTesting = true,
+  setTestingDeckIds = true,
+  heroSpawnTesting = true,
+  encounterSpawnTesting = true,
   ui = {
     -- main = true,
     -- hero = true,
@@ -374,7 +374,7 @@ function basicSetup(params)
   }
   params.mainSchemeGUID = getFromBag({
   searchBy = "name",
-  searchTerm = mainSchemeName,
+  searchTerm = "Main Scheme",
   params =  mainSchemeParams,
   guid = scenarioBagGUID
   }).guid
@@ -387,7 +387,7 @@ function basicSetup(params)
   }
   params.villianGUID = getFromBag({
   searchBy = "name",
-  searchTerm = villianName,
+  searchTerm = "Villian",
   params =  villianParams,
   guid = scenarioBagGUID
   }).guid
@@ -492,14 +492,23 @@ end
 function buildEncounterDeckClicked()
   local callback = externalSetup
 
-  if scenario == "Random" then scenario = getRandomFromBag(scenariosBagGUID) end
-  if modularEncounter == "Random" then modularEncounter = getRandomFromBag(modularEncountersBagGUID) end
+  if scenario == "Random" then
+    scenario = getRandomFromBag(scenariosBagGUID)
+  end
+  if modularEncounter == "Random" then
+    modularEncounter = getRandomFromBag(modularEncountersBagGUID)
+  end
 
   local scenarioBagParams = {
-    position = {-10,0,15}
+    position = { -10, 0, 15 }
   , callback_function = callback
   }
-  getFromBagOld(scenario, scenarioBagParams, scenariosBagGUID)
+  getFromBag({
+    searchBy = "name",
+    searchTerm = scenario,
+    params = scenarioBagParams,
+    guid = scenariosBagGUID
+  })
   UI.hide("encounterPanel")
 end
 
@@ -1422,4 +1431,3 @@ positioning = {
     return out
   end
 }
-
