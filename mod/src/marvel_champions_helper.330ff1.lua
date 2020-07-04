@@ -756,48 +756,50 @@ end
 --[[ UI Functions ]]--
 
 -- UI Component Functions
-function cell(contents, colSpan)
-  colSpan = colSpan or 1
+uif = {
+  cell = function(contents, colSpan)
+    colSpan = colSpan or 1
+    
+    return {
+      tag="Cell"
+      , attributes={
+        columnSpan=colSpan
+      }
+      , children=contents
+    }
+  end,
+
+  row = function(cells)
+    return {
+      tag="Row",
+      attributes={},
+      children=cells
+    }
+  end,
   
-  return {
-    tag="Cell"
-    , attributes={
-      columnSpan=colSpan
+  option = function(value)
+    return {
+      tag="Option"
+      , value=value
     }
-    , children=contents
-  }
-end
-
-function row(cells)
-  return {
-    tag="Row",
-    attributes={},
-    children=cells
-  }
-end
-
-function option(value)
-  return {
-    tag="Option"
-    , value=value
-  }
-end
-
-function toggle(value, onValueChanged, isOn, textColor)
-  isOn = isOn or false
-  textColor = textColor or "orange"
-
-  return {
-    tag = "Toggle"
-    , value = value
-    , attributes = {
-      onValueChanged = scriptContainerGUID .. "/" .. onValueChanged
-      , textColor = textColor
-      , fontSize = 16
-      , isOn = isOn
+  end,
+  
+  toggle = function(value, onValueChanged, isOn, textColor)
+    isOn = isOn or false
+    textColor = textColor or "orange"
+  
+    return {
+      tag = "Toggle"
+      , value = value
+      , attributes = {
+        onValueChanged = scriptContainerGUID .. "/" .. onValueChanged
+        , textColor = textColor
+        , fontSize = 16
+        , isOn = isOn
+      }
     }
-  }
-end
+  end
+}
 
 -- UI Helper Functions
 function toggleHidden(uiElement)
@@ -821,12 +823,12 @@ function generateOptionsFromBagContents(bagGUID, setter, includeRandom)
   
   if (bagContents != nil) then
     if includeRandom then
-      table.insert(options, option("Random"))
+      table.insert(options, uif.option("Random"))
       setter("", "Random")
       first = false
     end
     for k,v in pairs(bagContents) do
-      table.insert(options, option(v.name))
+      table.insert(options, uif.option(v.name))
       if first then
         setter("", v.name)
         first = false
@@ -886,22 +888,41 @@ uiBuilder = {
   -- Make the Main UI
   makeUI = function()
     log("Building UI")
-
     local marvelUI = {}
+
+    table.insert(marvelUI, sidebar:make())
+    table.insert(marvelUI, heroPanel:make())
+    table.insert(marvelUI, encounterPanel:make())
+    table.insert(marvelUI, playerPanel:make())
     
+    UI.setXmlTable(marvelUI)
+  end,
+
+  uiToggleButton = function()
+    tile = getObjectFromGUID(scriptContainerGUID)
+    self.createButton({
+      click_function="toggleUI", function_owner=self,
+      position={0,0,0}, rotation={0,0,0}, height=950, width=700,
+      tooltip="Click to show/hide Marvel UI"
+    })
+  end
+}
+
+sidebar = {
+  make = function(self)
     local sidebarLayout = {
       tag="VerticalLayout",
       attributes={
         id="marvelUILayout"
-        , rectAlignment="MiddleRight"
-        , height=100
-        , width=100
-        , color="rgba(0,0,0,0.7)"
-        , active= flags.ui.main or false
+      , rectAlignment="MiddleRight"
+      , height=100
+      , width=100
+      , color="rgba(0,0,0,0.7)"
+      , active= flags.ui.main or false
       },
       children={}
     }
-    
+
     local playerButton = {
       tag="Button",
       attributes={
@@ -919,7 +940,7 @@ uiBuilder = {
       },
       value="Hero Builder",
     }
-    
+
     local encounterButton = {
       tag="Button",
       attributes={
@@ -933,8 +954,8 @@ uiBuilder = {
       tag="Button",
       attributes={
         onClick=scriptContainerGUID .. "/toggleUI"
-        , tooltip="You can also toggle the UI by clicking the \nMarvel Champions Helper Tile on the table."
-        , fontSize=12
+      , tooltip="You can also toggle the UI by clicking the \nMarvel Champions Helper Tile on the table."
+      , fontSize=12
       },
       value="Close Marvel UI",
     }
@@ -944,21 +965,7 @@ uiBuilder = {
     table.insert(sidebarLayout.children, encounterButton)
     table.insert(sidebarLayout.children, closeButton)
 
-    table.insert(marvelUI, sidebarLayout)
-    table.insert(marvelUI, heroPanel:make())
-    table.insert(marvelUI, encounterPanel:make())
-    table.insert(marvelUI, playerPanel:make())
-    
-    UI.setXmlTable(marvelUI)
-  end,
-
-  uiToggleButton = function()
-    tile = getObjectFromGUID(scriptContainerGUID)
-    self.createButton({
-      click_function="toggleUI", function_owner=self,
-      position={0,0,0}, rotation={0,0,0}, height=950, width=700,
-      tooltip="Click to show/hide Marvel UI"
-    })
+    return sidebarLayout
   end
 }
 
@@ -979,8 +986,8 @@ playerPanel = {
       }
     }
   
-    return row({
-      cell(header,2)
+    return uif.row({
+      uif.cell(header,2)
     })
   end,
   
@@ -999,12 +1006,12 @@ playerPanel = {
       , attributes={
         onValueChanged=scriptContainerGUID .. "/setPlayerCount"
       }
-      , children={option(1),option(2),option(3),option(4)}
+      , children={uif.option(1),uif.option(2),uif.option(3),uif.option(4)}
     }
   
-    return row({
-      cell(label)
-      , cell(dropdown)
+    return uif.row({
+      uif.cell(label)
+      , uif.cell(dropdown)
     })
   end,
 
@@ -1018,8 +1025,8 @@ playerPanel = {
       value="Set Players",
     }
   
-    return row({
-      cell(button, 2)
+    return uif.row({
+      uif.cell(button, 2)
     })
   end,
 
@@ -1085,8 +1092,8 @@ heroPanel = {
       }
     }
   
-    return row({
-      cell(header,2)
+    return uif.row({
+      uif.cell(header,2)
     })
   end,
   
@@ -1120,9 +1127,9 @@ heroPanel = {
       }
     }
   
-    return row({
-      cell(deckIdInput),
-      cell(publicPrivateToggle)
+    return uif.row({
+      uif.cell(deckIdInput),
+      uif.cell(publicPrivateToggle)
     })
   end,
   
@@ -1136,8 +1143,8 @@ heroPanel = {
       value="Build Hero Deck",
     }
   
-    return row({
-      cell(button, 2)
+    return uif.row({
+      uif.cell(button, 2)
     })
   end,
   
@@ -1203,8 +1210,8 @@ encounterPanel = {
       }
     }
   
-    return row({
-      cell(header,2)
+    return uif.row({
+      uif.cell(header,2)
     })
   end,
   
@@ -1226,9 +1233,9 @@ encounterPanel = {
       , children=generateOptionsFromBagContents(scenariosBagGUID, setScenario, true)
     }
   
-    return row({
-      cell(label)
-      , cell(dropdown)
+    return uif.row({
+      uif.cell(label)
+      , uif.cell(dropdown)
     })
   end,
   
@@ -1250,15 +1257,15 @@ encounterPanel = {
       , children=generateOptionsFromBagContents(modularEncountersBagGUID, setModularEncounter, true)
     }
   
-    return row({
-      cell(label)
-      , cell(dropdown)
+    return uif.row({
+      uif.cell(label)
+      , uif.cell(dropdown)
     })
   end,
   
   optionsRow = function()
-    return row({
-      cell(toggle("Include Expert Encounter Set", "setExpert", includeExpert), 2)
+    return uif.row({
+      uif.cell(uif.toggle("Include Expert Encounter Set", "setExpert", includeExpert), 2)
     })
   end,
   
@@ -1272,8 +1279,8 @@ encounterPanel = {
       value="Build Encounter Deck",
     }
   
-    return row({
-      cell(button, 2)
+    return uif.row({
+      uif.cell(button, 2)
     })
   end,
 
@@ -1414,3 +1421,4 @@ function Vect_Sum(vec1, vec2)
     return out
 end
 -- End Dzikakulka's positioning script
+
