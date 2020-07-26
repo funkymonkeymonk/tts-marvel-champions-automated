@@ -1,41 +1,37 @@
---[[ Lua code. See documentation: http://berserk-games.com/knowledgebase/scripting/ --]]
-
---[[
-  TODO: ? Fix risky business and norman osbourne flipped side
-  TODO: Clean up encounter builder
-  TODO: UI Beautification
-  TODO: Figure out how to manage special hero and villian setups
-  TODO: Automate villian and hero life and threat counter setup
-  TODO: Create a default "Villian playmat"
-  TODO: ? Automate dealing out encounter cards
-  TODO: ? Automate discarding encounter cards
-  TODO: ? Create encounter card locations for each player
-  TODO: Default hero decks from the packs
-  TODO: Default scenarios with default modular encounters
-  TODO: Multiple modular encounters
-  TODO: Change out tokens for stylized counters
-  TODO: Custom keyboard bindings for increase/decrease villian health
-  TODO: Custom keyboard bindings for increase/decrease main scheme threat
-  TODO: Refactor for less global variables
-  TODO: Include manual deck creation
-  TODO: Include import from text
-  TODO: Do proper sorting and searching instead of brute force for loops
-  TODO: Figure out how to better modularize this code
-  TODO: Resize playmats to all be the same size
-  TODO: Better table image 
-]]
-
 -- Testing flags
+-- How do I create a "test suite" for the mod? There is starting to be misses
+-- and I want to make it easier to add custom content.
 flags = {
     --setTestingDeckIds = true,
+    --setTestingScenario = true,
     --heroSpawnTesting = true,
     --encounterSpawnTesting = true,
+    --expertTesting = true,
     ui = {
         --main = true,
         --hero = true,
         --encounter = true,
         --player = true,
     }
+}
+
+-- Replace these test hero decks with my own
+testHeroDeckIds = {
+    BlackPanther = 449,
+    BlackWidow = 1268,
+    CaptainAmerica = 2225,
+    CaptainMarvel = 1411,
+    DoctorStrange = 1752,
+    IronMan = 510,
+    MsMarvel = 931,
+    SheHulk = 1811,
+    SpiderMan = 2132,
+    Thor = 1081
+}
+
+testing = {
+    scenario = "The Wrecking Crew",
+    heroDeckIds = testHeroDeckIds.Thor
 }
 
 function onLoad()
@@ -68,6 +64,7 @@ function onLoad()
     SIDEWAYS = { 0, 90, 0 }
 
     -- Globals
+    -- TODO: Explore better state management for the buttons.
     privateDeck = true
     scenario = ""
     modularEncounter = ""
@@ -80,6 +77,11 @@ function onLoad()
     -- Create Interface
     uiBuilder.makeUI()
     uiBuilder.uiToggleButton()
+
+    -- Set up testing state
+    if flags.expertTesting then
+        includeExpert = "True"
+    end
     if flags.heroSpawnTesting then
         hero:buildDeck(Player["Blue"])
     end
@@ -103,41 +105,14 @@ function getBagContents(bagGUID)
     return bag.getObjects()
 end
 
---[[
-  TODO: Deprecate all usages and move to parameterized version
-]]
-function getFromBagOld(name, cloneParams, bagGUID)
-    local bag = getObjectFromGUID(bagGUID)
-    local bagContents = bag.getObjects()
-
-    if (bagContents != nil) then
-    for k, v in pairs(bagContents) do
-    if (v.name == name) then
-    bagObjectParameters = {
-    position = {0, 0, 60}
-    , rotation = self.getRotation()
-    , guid = v.guid
-    , smooth = false
-    }
-
-    local bagItem = bag.takeObject(bagObjectParameters)
-    local cloneItem = bagItem.clone(cloneParams)
-    bag.putObject(bagItem)
-    log(name .. ' loaded')
-    return cloneItem
-    end
-    end
-    end
-
-    print(name.." not found in bag")
-end
-
+-- TODO: I'm not entirely convinced this works. I don't think it reshuffles every time.
 function getRandomFromBag(bagGUID)
     bag = getObjectFromGUID(bagGUID)
     bag.shuffle()
     return getBagContents(bagGUID)[1].name
 end
 
+-- TODO: Do proper sorting and searching instead of brute force for loops
 function getFromBag(params)
     local searchBy = params.searchBy
     local searchTerm = params.searchTerm
@@ -148,26 +123,26 @@ function getFromBag(params)
 
     log("Searching for " .. searchTerm .. " by " .. searchBy)
 
-    if (bagContents != nil) then
-    for k, v in pairs(bagContents) do
-    if (v[searchBy] == searchTerm) then
-    bagObjectParameters = {
-    position = {0, 0, 60}
-    , rotation = self.getRotation()
-    , guid = v.guid
-    , smooth = false
-    }
+    if (bagContents ~= nil) then
+        for k, v in pairs(bagContents) do
+            if (v[searchBy] == searchTerm) then
+                bagObjectParameters = {
+                    position = { 0, 0, 60 }
+                , rotation = self.getRotation()
+                , guid = v.guid
+                , smooth = false
+                }
 
-    local bagItem = bag.takeObject(bagObjectParameters)
-    local cloneItem = bagItem.clone(cloneParams)
-    bag.putObject(bagItem)
-    log(searchTerm .. ' loaded')
-    return cloneItem
-    end
-    end
+                local bagItem = bag.takeObject(bagObjectParameters)
+                local cloneItem = bagItem.clone(cloneParams)
+                bag.putObject(bagItem)
+                log(searchTerm .. ' loaded')
+                return cloneItem
+            end
+        end
     end
 
-    print(searchTerm.." not found in bag")
+    print(searchTerm .. " not found in bag")
 end
 
 function getFromDeck(params)
@@ -180,19 +155,19 @@ function getFromDeck(params)
 
     log("Searching for " .. searchTerm .. " by " .. searchBy)
 
-    if (bagContents != nil) then
-    for k, v in pairs(bagContents) do
-    if (v[searchBy] == searchTerm) then
-    cloneParams.guid = v.guid
+    if (bagContents ~= nil) then
+        for k, v in pairs(bagContents) do
+            if (v[searchBy] == searchTerm) then
+                cloneParams.guid = v.guid
 
-    local bagItem = bag.takeObject(cloneParams)
-    log(searchTerm .. ' retrieved')
-    return bagItem
-    end
-    end
+                local bagItem = bag.takeObject(cloneParams)
+                log(searchTerm .. ' retrieved')
+                return bagItem
+            end
+        end
     end
 
-    print(searchTerm.." not found in bag")
+    print(searchTerm .. " not found in bag")
 end
 
 -- MarvelCDB Functions
@@ -206,7 +181,7 @@ marvelCDB = {
 
         if (flags.setTestingDeckIds) then
             deckURL = publicDeckURL
-            deckID = 449
+            deckID = testing.heroDeckIds
         end
 
         if not deckID then
@@ -290,6 +265,8 @@ function init()
     -- Initialize Variable
     cardList = {}
     doneSlots = 0
+
+
 end
 
 -- Helpers to be moved
@@ -325,39 +302,39 @@ function basicSetup(params)
     if expert == "True" then
         announce = announce .. " expert"
     end
-    if modularEncounters != nil then
-    announce = announce .. " " .. villianName .. " encounter deck with " .. modularEncounters
+    if modularEncounters ~= nil then
+        announce = announce .. " " .. villianName .. " encounter deck with " .. modularEncounters
     else
-    announce = announce .. " " .. villianName .. " encounter deck."
+        announce = announce .. " " .. villianName .. " encounter deck."
     end
 
     broadcastToAll(announce)
 
     -- Delete this once there is a better way of managing state
     function putOutTokens()
-    local villianHealthTrackerParams = { position = {3, 0, 13.25}, rotation ={0, 0, 0}}
-    getFromBag({
-    searchBy = "name",
-    searchTerm = "Health Tracker",
-    params =  villianHealthTrackerParams,
-    guid = tokenBagGUID
-    })
+        local villianHealthTrackerParams = { position = { 3, 0, 13.25 }, rotation = { 0, 0, 0 } }
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Health Tracker",
+            params = villianHealthTrackerParams,
+            guid = tokenBagGUID
+        })
 
-    local threatBagParams = { position = {11.25, 0, 14.5}, rotation ={0, 0, 0}}
-    getFromBag({
-    searchBy = "name",
-    searchTerm = "Threat",
-    params =  threatBagParams,
-    guid = tokenBagGUID
-    })
+        local threatBagParams = { position = { 11.25, 0, 14.5 }, rotation = { 0, 0, 0 } }
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Threat",
+            params = threatBagParams,
+            guid = tokenBagGUID
+        })
 
-    local accelerationBagParams = { position = {8.5, 0, 14.5}, rotation ={0, 0, 0}}
-    getFromBag({
-    searchBy = "name",
-    searchTerm = "Acceleration",
-    params =  accelerationBagParams,
-    guid = tokenBagGUID
-    })
+        local accelerationBagParams = { position = { 8.5, 0, 14.5 }, rotation = { 0, 0, 0 } }
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Acceleration",
+            params = accelerationBagParams,
+            guid = tokenBagGUID
+        })
     end
 
     local waitfor = {}
@@ -365,89 +342,106 @@ function basicSetup(params)
     -- Put out the encounter deck
     waitfor.encounterDeck = false
     local encounterDeckParams = {
-    position = {-3, 0, 9.5}
-    , rotation = {180, 0, 0}
-    , callback_function = || markAsFinished(waitfor, "encounterDeck")
+        position = { -3, 0, 9.5 },
+        rotation = { 180, 0, 0 },
+        callback_function = function()
+            markAsFinished(waitfor, "encounterDeck")
+        end
     }
     params.encounterDeckGUID = getFromBag({
-    searchBy = "name",
-    searchTerm = "Encounter Deck",
-    params =  encounterDeckParams,
-    guid = scenarioBagGUID
+        searchBy = "name",
+        searchTerm = "Encounter Deck",
+        params = encounterDeckParams,
+        guid = scenarioBagGUID
     }).guid
 
     -- Put Out the Main Scheme
     waitfor.mainScheme = false
     local mainSchemeParams = {
-    position = {10, 0, 10.4}
-    , rotation ={0, 90, 180}
-    , callback_function = || markAsFinished(waitfor, "mainScheme")
+        position = { 10, 0, 10.4 },
+        rotation = { 0, 90, 180 },
+        callback_function = function()
+            markAsFinished(waitfor, "mainScheme")
+        end
     }
     params.mainSchemeGUID = getFromBag({
-    searchBy = "name",
-    searchTerm = "Main Scheme",
-    params =  mainSchemeParams,
-    guid = scenarioBagGUID
+        searchBy = "name",
+        searchTerm = "Main Scheme",
+        params = mainSchemeParams,
+        guid = scenarioBagGUID
     }).guid
 
     -- Put Out the Villian
     waitfor.villian = false
     local villianParams = {
-    position = {3, 0, 9.5}
-    , callback_function = || markAsFinished(waitfor, "villian")
+        position = { 3, 0, 9.5 },
+        callback_function = function()
+            markAsFinished(waitfor, "villian")
+        end
     }
     params.villianGUID = getFromBag({
-    searchBy = "name",
-    searchTerm = "Villian",
-    params =  villianParams,
-    guid = scenarioBagGUID
+        searchBy = "name",
+        searchTerm = "Villian",
+        params = villianParams,
+        guid = scenarioBagGUID
     }).guid
 
     putOutTokens() -- Remove this once a good villian and scenario board is created
 
     if includeStandard == "True" then
-    getFromBag({
-    searchBy = "name",
-    searchTerm = "Standard",
-    params = encounterDeckParams,
-    guid = encountersBagGUID
-    })
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Standard",
+            params = encounterDeckParams,
+            guid = encountersBagGUID
+        })
     end
 
     if expert == "True" then
-    getFromBag({
-    searchBy = "name",
-    searchTerm = "Expert",
-    params = encounterDeckParams,
-    guid = encountersBagGUID
-    })
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Expert",
+            params = encounterDeckParams,
+            guid = encountersBagGUID
+        })
     end
 
-    if not modularEncounters == nil then
-    local modularEncounterName = modularEncounters
-    getFromBag({
-    searchBy = "name",
-    searchTerm = modularEncounterName,
-    params = encounterDeckParams,
-    guid = modularEncountersBagGUID
-    })
+    if modularEncounters ~= nil then
+        local modularEncounterName = modularEncounters
+        getFromBag({
+            searchBy = "name",
+            searchTerm = modularEncounterName,
+            params = encounterDeckParams,
+            guid = modularEncountersBagGUID
+        })
     end
 
     if params.basicExpert == "True" then
-    Wait.condition(
-    || basicExpert(params),
-    || allFinished(waitfor),
-    3,
-    || error("Timeout spawning encounter: "..dump(params))
-    )
+        Wait.condition(
+                function()
+                    basicExpert(params)
+                end,
+                function()
+                    return allFinished(waitfor)
+                end,
+                3,
+                function()
+                    error("Timeout spawning encounter: " .. dump(params))
+                end
+        )
     else
-    Wait.condition(
-    || scenarioBag.call("scenarioSpecificSetup", params),
-    || allFinished(waitfor),
-    3,
-    || error("Timeout spawning encounter: "..dump(params)
-    )
-    )
+        Wait.condition(
+                function()
+                    scenarioBag.call("scenarioSpecificSetup", params)
+                end,
+                function()
+                    allFinished(waitfor)
+                end,
+                3,
+                function()
+                    error("Timeout spawning encounter: " .. dump(params))
+                end
+        )
     end
 end
 
@@ -494,19 +488,23 @@ function externalSetup(scenarioBag)
     if includeExpert == "True" then
         params.expert = "True"
     end
-    if modularEncounter != nil then
-    params.modularEncounters = modularEncounter
+    if modularEncounter ~= nil then
+        params.modularEncounters = modularEncounter
     end
 
     if params.basicSetup == "True" then
-    params = basicSetup(params)
+        basicSetup(params)
     else
-    scenarioBag.call("scenarioSpecificSetup", params)
+        scenarioBag.call("scenarioSpecificSetup", params)
     end
 end
 
 function buildEncounterDeckClicked()
     local callback = externalSetup
+
+    if (flags.setTestingScenario) then
+        scenario = testing.scenario
+    end
 
     if scenario == "Random" then
         scenario = getRandomFromBag(scenariosBagGUID)
@@ -529,35 +527,6 @@ function buildEncounterDeckClicked()
 end
 
 -- HERO FUNCTIONS
-function setupHero(heroBag)
-    -- Positions
-    local heroCardOffset = { 7.9, 1, -1.75 }
-    local heroCardParams = {
-        position = positioning:LocalPos(heroBag, heroCardOffset),
-        rotation = FLIPPED
-    }
-
-    local obligationOffset = { 0, 1, -9 }
-    local obligationParams = {
-        position = positioning:LocalPos(heroBag, obligationOffset)
-    }
-
-    local nemesisOffset = { 4.5, 1, 8.5 }
-    local nemesisParams = {
-        position = positioning:LocalPos(heroBag, nemesisOffset),
-        rotation = SIDEWAYS
-    }
-
-    local heroBagOffset = { -9, 1, -8.5 }
-    --[[
-    TODO: Put Hero name on card by moving to description based tagging
-    ]]
-    getFromBagOld("Hero", heroCardParams, heroBag.getGUID())
-    getFromBagOld("Obligation", obligationParams, heroBag.getGUID())
-    getFromBagOld("Nemesis", nemesisParams, heroBag.getGUID())
-    heroBag.translate(heroBagOffset)
-end
-
 function isSeated(playerColor, playerSteamName)
     -- Check if the player is seated in an active space
     local activePlayerColors = {}
@@ -574,6 +543,52 @@ function isSeated(playerColor, playerSteamName)
 end
 
 hero = {
+    setupHero = function(heroBag)
+        -- Positions
+        local heroCardOffset = { 7.9, 1, -1.75 }
+        local heroCardParams = {
+            position = positioning:LocalPos(heroBag, heroCardOffset),
+            rotation = FLIPPED
+        }
+
+        local obligationOffset = { 2, 1, -7 }
+        local obligationParams = {
+            position = positioning:LocalPos(heroBag, obligationOffset)
+        }
+
+        local nemesisOffset = { 4.5, 1, 8.5 }
+        local nemesisParams = {
+            position = positioning:LocalPos(heroBag, nemesisOffset),
+            rotation = SIDEWAYS
+        }
+
+        local heroBagOffset = { -9, 1, -8.5 }
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Hero",
+            params = heroCardParams,
+            guid = heroBag.getGUID()
+        })
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Obligation",
+            params = obligationParams,
+            guid = heroBag.getGUID()
+        })
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Nemesis",
+            params = nemesisParams,
+            guid = heroBag.getGUID()
+        })
+
+        --params = {
+        --    heroBag = heroBag
+        --}
+        heroBag.call("setup")
+
+        heroBag.translate(heroBagOffset)
+    end,
     createDeck = function(self, playmat)
         -- Positions
         local cloneParams = { position = { 0, 0, 50 } }
@@ -581,17 +596,28 @@ hero = {
         local heroBagOffset = { 0, 0, 0 }
         local heroBagParams = {
             position = positioning:LocalPos(playmat, heroBagOffset),
-            callback_function = setupHero
+            callback_function = self.setupHero
         }
 
         local heroDeckOffset = { -6.55, 1, -5.3 }
         local heroDeckPos = positioning:LocalPos(playmat, heroDeckOffset)
+        local heroName = JsonDeckRes.investigator_name
 
         -- Unpack Hero Bag
-        getFromBagOld(JsonDeckRes.investigator_name, heroBagParams, herosBagGUID)
+        getFromBag({
+            searchBy = "name",
+            searchTerm = heroName,
+            params = heroBagParams,
+            guid = herosBagGUID
+        })
 
         -- Setup deck
-        local cardpool = getFromBagOld("CardPool", cloneParams, herosBagGUID)
+        local cardpool = getFromBag({
+            searchBy = "name",
+            searchTerm = "CardPool",
+            params = cloneParams,
+            guid = herosBagGUID
+        })
 
         for k, v in pairs(cardList) do
             searchForCard(v.cardName, v.subName, v.cardCount, cardpool, heroDeckPos)
@@ -599,12 +625,11 @@ hero = {
 
         cardpool.destruct()
     end,
-
     buildDeck = function(self, player)
         -- Reset
         init()
 
-        local steamName = player.steam_name
+        local steamName = player.steam_name or "unknown"
         local color = player.color
 
         if not isSeated(color, steamName) then
@@ -630,13 +655,43 @@ hero = {
 
         local objs = {}
         -- Get Playspace Items
-        local playmat = getFromBagOld(defaultPlaymatName, playmatParams, tokenBagGUID)
+        local playmat = getFromBag({
+            searchBy = "name",
+            searchTerm = defaultPlaymatName,
+            params = playmatParams,
+            guid = tokenBagGUID
+        })
         table.insert(objs, playmat)
-        table.insert(objs, getFromBagOld("Damage", tokenParams(0), tokenBagGUID))
-        table.insert(objs, getFromBagOld("Generic", tokenParams(1), tokenBagGUID))
-        table.insert(objs, getFromBagOld("Tough", tokenParams(2), tokenBagGUID))
-        table.insert(objs, getFromBagOld("Stunned", tokenParams(3), tokenBagGUID))
-        table.insert(objs, getFromBagOld("Confused", tokenParams(4), tokenBagGUID))
+        table.insert(objs, getFromBag({
+            searchBy = "name",
+            searchTerm = "Damage",
+            params = tokenParams(0),
+            guid = tokenBagGUID
+        }))
+        table.insert(objs, getFromBag({
+            searchBy = "name",
+            searchTerm = "Generic",
+            params = tokenParams(1),
+            guid = tokenBagGUID
+        }))
+        table.insert(objs, getFromBag({
+            searchBy = "name",
+            searchTerm = "Tough",
+            params = tokenParams(2),
+            guid = tokenBagGUID
+        }))
+        table.insert(objs, getFromBag({
+            searchBy = "name",
+            searchTerm = "Stunned",
+            params = tokenParams(3),
+            guid = tokenBagGUID
+        }))
+        table.insert(objs, getFromBag({
+            searchBy = "name",
+            searchTerm = "Confused",
+            params = tokenParams(4),
+            guid = tokenBagGUID
+        }))
 
         for k, v in pairs(objs) do
             v.setLock(true)
@@ -645,19 +700,47 @@ hero = {
         -- Wait for playmat to spawn before spawning things on top of it
         local playmatTimeout = 60
         Wait.condition(
-                || spawnHealthTracker(player),
-        || not playmat.spawning,
-        timeout,
-        || onTimeout("spawning playmat", playmatTimeout)
+                function()
+                    self.spawnHealthTracker(player)
+                end,
+                function()
+                    return not playmat.spawning
+                end,
+                timeout,
+                function()
+                    onTimeout("spawning playmat", playmatTimeout)
+                end
         )
 
         local marvelcdbTimeout = 300
         Wait.condition(
-        || self:createDeck(playmat),
-        || doneSlots == numSlots and not playmat.spawning,
-        timeout,
-        || onTimeout("Getting deck from MarvelCDB", marvelcdbTimeout)
+                function()
+                    self:createDeck(playmat)
+                end,
+                function()
+                    return doneSlots == numSlots and not playmat.spawning
+                end,
+                timeout,
+                function()
+                    onTimeout("Getting deck from MarvelCDB", marvelcdbTimeout)
+                end
         )
+    end,
+    spawnHealthTracker = function(player)
+        -- Positions
+        local playerPos = player.getHandTransform().position
+        local healthOffset = { -7.92, -3.6, 16.95 }
+        local healthParams = { position = positioning.Vect_Sum(playerPos, healthOffset), rotation = { 0, 0, 0 } }
+
+        local healthTracker = getFromBag({
+            searchBy = "name",
+            searchTerm = "Health Tracker",
+            params = healthParams,
+            guid = tokenBagGUID
+        })
+
+        -- healthTracker.setLock(true)
+        healthTracker.setColorTint(player.color)
     end
 }
 
@@ -699,17 +782,6 @@ function cardTaken(card, params)
         print('Wrong card: ' .. card.getName())
         tmpDeck.putObject(card)
     end
-end
-
-function spawnHealthTracker(player)
-    -- Positions
-    local playerPos = player.getHandTransform().position
-    local healthOffset = { -7.92, -3.6, 16.95 }
-    local healthParams = { position = positioning.Vect_Sum(playerPos, healthOffset), rotation = { 0, 0, 0 } }
-
-    local healthTracker = getFromBagOld("Health Tracker", healthParams, tokenBagGUID)
-    -- healthTracker.setLock(true)
-    healthTracker.setColorTint(player.color)
 end
 
 -- Player And Table Setup
@@ -866,21 +938,21 @@ function generateOptionsFromBagContents(bagGUID, setter, includeRandom)
     local options = {}
     local bagContents = getBagContents(bagGUID)
 
-    if (bagContents != nil) then
-    if includeRandom then
-    table.insert(options, uif.option("Random"))
-    setter("", "Random")
-    first = false
-    end
-    for k, v in pairs(bagContents) do
-    table.insert(options, uif.option(v.name))
-    if first then
-    setter("", v.name)
-    first = false
-    end
-    end
+    if (bagContents ~= nil) then
+        if includeRandom then
+            table.insert(options, uif.option("Random"))
+            setter("", "Random")
+            first = false
+        end
+        for k, v in pairs(bagContents) do
+            table.insert(options, uif.option(v.name))
+            if first then
+                setter("", v.name)
+                first = false
+            end
+        end
     else
-    print("Error: Bag " .. getBagName(bagGUID) .. "should not be empty")
+        print("Error: Bag " .. getBagName(bagGUID) .. "should not be empty")
     end
     return options
 end
@@ -1483,3 +1555,6 @@ positioning = {
         return out
     end
 }
+
+
+

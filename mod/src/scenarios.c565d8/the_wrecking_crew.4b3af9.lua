@@ -1,7 +1,9 @@
 --[[
   To Test Run the below command in the console
   lua getObjectFromGUID("4b3af9").call("setup", {guid = "4b3af9"})
-]] 
+]]
+
+tokenBagGUID = "b7675d"
 
 scenarioParameters = {
   basicSetup = "False",
@@ -11,23 +13,29 @@ function scenarioSpecificSetup(params)
   local scenarioBagGUID = params.scenarioBagGUID
   local expert = params.expert
 
-  local FLIPPED = {180,0,0}
-  local SIDEWAYS = {0,90,0}
-  local getFromBag = | params | getObjectFromGUID("330ff1").call("getFromBag", params)
-  local getFromDeck = | params | getObjectFromGUID("330ff1").call("getFromDeck", params)
+  local FLIPPED = { 180, 0, 0 }
+  local SIDEWAYS = { 0, 90, 0 }
+  local getFromBag = function(params)
+    return getObjectFromGUID("330ff1").call("getFromBag", params)
+  end
+  local getFromDeck = function(params)
+    return getObjectFromGUID("330ff1").call("getFromDeck", params)
+  end
 
   log("Setting up The Wrecking Crew")
   local announce = "Constructing"
-  if expert == "True" then announce = announce .. " expert" end
+  if expert == "True" then
+    announce = announce .. " expert"
+  end
   announce = announce .. " Wrecking Crew encounter deck."
   broadcastToAll(announce)
 
-  function layoutVillian (name, xOffset, scenarioBagGUID)
-    local villianBagParams = { position = {xOffset,2,12}, rotation={0,0,0}}
-    local villianParams = { position = {xOffset,2,5}, rotation={0,180,0}}
-    local encounterParams = { position = {xOffset,2,10}, rotation=FLIPPED}
-    local sideSchemeParams = { position = {xOffset + 4.5,2,5}, rotation=SIDEWAYS }
-    local healthTrackerParams = { position = {xOffset,4,6}, rotation={0,0,0}}
+  function layoutVillain (name, xOffset, scenarioBagGUID)
+    local villianBagParams = { position = { xOffset, 2, 12 }, rotation = { 0, 0, 0 } }
+    local villianParams = { position = { xOffset, 2, 4.5 }, rotation = { 0, 180, 0 } }
+    local encounterParams = { position = { xOffset, 2, 10 }, rotation = FLIPPED }
+    local sideSchemeParams = { position = { xOffset + 4.5, 2, 5 }, rotation = SIDEWAYS }
+    local healthTrackerParams = { position = { xOffset, 4, 5.5 }, rotation = { 0, 0, 0 } }
 
     local villianBag = getFromBag({
       searchBy = "name",
@@ -40,14 +48,14 @@ function scenarioSpecificSetup(params)
       searchBy = "name",
       searchTerm = "Health Tracker",
       params = healthTrackerParams,
-      guid = scenarioBagGUID
+      guid = tokenBagGUID
     })
-    
+
     local villianBagGUID = villianBag.guid
     local villianSearch = name.." A"
-    
+
     if expert == "True" then
-      villianSearch = name.." B" 
+      villianSearch = name .. " B"
     end
 
     function unpackBag()
@@ -57,14 +65,14 @@ function scenarioSpecificSetup(params)
         params = encounterParams,
         guid = villianBagGUID
       })
-      
+
       getFromBag({
         searchBy = "name",
         searchTerm = villianSearch,
         params = villianParams,
         guid = villianBagGUID
       })
-      
+
       getFromBag({
         searchBy = "description",
         searchTerm = name.." Side Scheme",
@@ -84,7 +92,9 @@ function scenarioSpecificSetup(params)
         healthTracker.setColorTint("Black")
       end
 
-      Wait.frames(|| destroyObject(villianBag), 1)
+      Wait.frames(function()
+        destroyObject(villianBag)
+      end, 1)
     end
 
     Wait.frames(unpackBag, 1)
@@ -100,16 +110,19 @@ function scenarioSpecificSetup(params)
     guid = scenarioBagGUID
   })
 
-  local threatBagParams = { position = {5,2,15}, rotation={0,0,0} }
+  local threatBagParams = { position = { 5, 2, 15 }, rotation = { 0, 0, 0 } }
   getFromBag({
     searchBy = "name",
     searchTerm = "Threat",
     params = threatBagParams,
-    guid = scenarioBagGUID
+    guid = tokenBagGUID
   })
-  
-  layoutVillian("Wrecker", -16, scenarioBagGUID)
-  layoutVillian("Thunderball", -7, scenarioBagGUID)
-  layoutVillian("Piledriver", 2, scenarioBagGUID)
-  layoutVillian("Bulldozer", 11, scenarioBagGUID)
+
+  layoutVillain("Wrecker", -16, scenarioBagGUID)
+  layoutVillain("Thunderball", -7, scenarioBagGUID)
+  layoutVillain("Piledriver", 2, scenarioBagGUID)
+  layoutVillain("Bulldozer", 11, scenarioBagGUID)
 end
+
+
+
