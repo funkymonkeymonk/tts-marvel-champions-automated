@@ -633,7 +633,7 @@ hero = {
         local color = player.color
 
         if not isSeated(color, steamName) then
-            broadcastToAll("Please take a seat at the table before building your deck " .. playerSteamName)
+            broadcastToAll("Please take a seat at the table before building your deck " .. steamName)
             return
         end
 
