@@ -2,16 +2,16 @@
 -- How do I create a "test suite" for the mod? There is starting to be misses
 -- and I want to make it easier to add custom content.
 flags = {
-    --setTestingDeckIds = true,
-    --setTestingScenario = true,
-    --heroSpawnTesting = true,
-    --encounterSpawnTesting = true,
-    --expertTesting = true,
+--    setTestingDeckIds = true,
+--    setTestingScenario = true,
+--    heroSpawnTesting = true,
+--    encounterSpawnTesting = true,
+--    expertTesting = true,
     ui = {
-        --main = true,
-        --hero = true,
-        --encounter = true,
-        --player = true,
+--        main = true,
+--        hero = true,
+--        encounter = true,
+--        player = true,
     }
 }
 
@@ -126,6 +126,7 @@ function getFromBag(params)
     if (bagContents ~= nil) then
         for k, v in pairs(bagContents) do
             if (v[searchBy] == searchTerm) then
+                cloneParams.smooth= False
                 bagObjectParameters = {
                     position = { 0, 0, 60 }
                 , rotation = self.getRotation()
@@ -312,11 +313,35 @@ function basicSetup(params)
 
     -- Delete this once there is a better way of managing state
     function putOutTokens()
-        local villianHealthTrackerParams = { position = { 3, 0, 13.25 }, rotation = { 0, 0, 0 } }
+        local villainHealthTrackerParams = { position = { 3, 0, 15.75 }, rotation = { 0, 0, 0 } }
         getFromBag({
             searchBy = "name",
             searchTerm = "Health Tracker",
-            params = villianHealthTrackerParams,
+            params = villainHealthTrackerParams,
+            guid = tokenBagGUID
+        })
+
+        local bigToughParams = { position = { -3.5, 0, 13.5 }}
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Big Tough",
+            params = bigToughParams,
+            guid = tokenBagGUID
+        })
+
+        local bigStunnedParams = { position = { 0, 0, 13.5 }}
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Big Stunned",
+            params = bigStunnedParams,
+            guid = tokenBagGUID
+        })
+
+        local bigConfusedParams = { position = { 3.5, 0, 13.5 }}
+        getFromBag({
+            searchBy = "name",
+            searchTerm = "Big Confused",
+            params = bigConfusedParams,
             guid = tokenBagGUID
         })
 
@@ -726,6 +751,7 @@ hero = {
                 end
         )
     end,
+
     spawnHealthTracker = function(player)
         -- Positions
         local playerPos = player.getHandTransform().position
@@ -1555,6 +1581,3 @@ positioning = {
         return out
     end
 }
-
-
-
